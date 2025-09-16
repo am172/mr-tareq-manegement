@@ -1,0 +1,199 @@
+/* =======================
+   🌐 الصفحة الرئيسية - الموظفين
+======================= */
+.page {
+  max-width: 1100px;
+  margin-left: auto;
+  padding: 20px;
+  font-family: "Tahoma", sans-serif;
+  direction: rtl;
+  text-align: right;
+  color: #222;
+  background: #fafafa;
+  box-sizing: border-box;
+}
+
+.page h1 {
+  text-align: center;
+  font-size: 28px;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.page h2 {
+  margin-top: 30px;
+  margin-bottom: 15px;
+  color: #444;
+  font-size: 22px;
+}
+
+.page p {
+  font-size: 16px;
+  margin-bottom: 15px;
+}
+
+/* =======================
+   📝 نموذج إضافة موظف
+======================= */
+.toggle-form-btn {
+  padding: 10px 18px;
+  font-size: 16px;
+  margin-bottom: 15px;
+  border: none;
+  background-color: #007bff;
+  color: white;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.toggle-form-btn:hover {
+  background-color: #0056b3;
+}
+
+.employee-form {
+  background: #fff;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  margin-bottom: 30px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 15px;
+  align-items: center;
+}
+
+.employee-form input,
+.employee-form select,
+.employee-form textarea {
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.employee-form textarea {
+  resize: vertical;
+}
+
+.employee-form fieldset {
+     grid-column: span 1;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 14px;
+}
+
+.employee-form button[type="submit"] {
+  margin-top: 15px;
+  padding: 10px 18px;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 15px;
+  transition: 0.3s;
+}
+
+.employee-form button[type="submit"]:hover {
+  background-color: #1e7e34;
+}
+
+
+
+/* =======================
+   📋 جدول الموظفين
+======================= */
+.table-wrapper {
+  overflow-x: auto; /* جعل الجدول يسكرول يمين/شمال */
+  margin-top: 15px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  min-width: 600px; /* لضمان عدم انكسار الجدول */
+}
+
+th, td {
+  border: 1px solid #ccc;
+  padding: 10px;
+  font-size: 14px;
+  text-align: center;
+}
+
+th {
+  background: #f1f1f1;
+  font-weight: bold;
+}
+
+tbody tr:nth-child(even) {
+  background: #f9f9f9;
+}
+
+tbody tr:hover {
+  background: #f1f7ff;
+}
+
+/* =======================
+   🛠️ رسائل الحالة
+======================= */
+.page p.message {
+  font-weight: bold;
+  color: #007bff;
+  margin-top: 10px;
+}
+
+/* =======================
+   📱 تجاوب الموبايل
+======================= */
+@media (max-width: 768px) {
+  .page {
+    margin-right: 0; /* محتوى يغطي الشاشة كاملة على الموبايل */
+    padding: 15px;
+  }
+  .employee-form {
+    padding: 15px;
+  }
+  .form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(143px, 1fr));
+  gap: 15px;
+  align-items: center;
+}
+
+  .employee-form fieldset {
+    padding: 10px;
+  }
+
+  th, td {
+    font-size: 12px;
+    padding: 8px;
+  }
+
+  .page h1 {
+    font-size: 24px;
+  }
+
+  .page h2 {
+    font-size: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .employee-form label {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  th, td {
+    font-size: 11px;
+    padding: 6px;
+  }
+}

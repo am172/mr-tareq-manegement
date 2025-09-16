@@ -1,0 +1,19 @@
+# Node
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Env
+.env
+.env.local
+.env.*.local
+
+# Build / Cache
+build/
+dist/
+.cache/
+.next/
+
+# OS
+.DS_Store
+.vscode/

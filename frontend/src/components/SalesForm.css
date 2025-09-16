@@ -1,0 +1,131 @@
+/* SalesForm.css */
+
+/* الصفحة بالكامل */
+.sales-page {
+  /* max-width: 900px; */
+  margin: 0 auto;
+  padding: 20px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #333;
+}
+
+.sales-page h1 {
+  text-align: center;
+  margin-bottom: 30px;
+  font-size: 2rem;
+  color: #2c3e50;
+}
+
+/* حاوية الفورم */
+.sales-form-container {
+  background-color: #fff;
+  padding: 25px 30px;
+  border-radius: 10px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+/* الفورم */
+.sales-form-container form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.sales-form-container label {
+  font-weight: 600;
+  margin-bottom: 5px;
+}
+
+.sales-form-container input {
+  padding: 10px 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 1rem;
+  transition: border 0.3s, box-shadow 0.3s;
+}
+
+.sales-form-container input:focus {
+  border-color: #2980b9;
+  box-shadow: 0 0 5px rgba(41, 128, 185, 0.4);
+  outline: none;
+}
+
+/* زر الإرسال */
+.sales-form-container button {
+  padding: 12px;
+  background-color: #2980b9;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.sales-form-container button:hover {
+  background-color: #1f618d;
+}
+
+/* نص الكمية المتاحة */
+.available {
+  font-weight: 500;
+  color: #27ae60;
+  margin-left: 5px;
+}
+
+/* قائمة الاوتوكومبليت */
+.autocomplete-list {
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  max-height: 150px;
+  overflow-y: auto;
+  background-color: #fff;
+  position: relative;
+  z-index: 1000;
+}
+
+.autocomplete-list div {
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.autocomplete-list div:hover {
+  background-color: #f0f0f0;
+}
+
+/* --- Responsive --- */
+@media (max-width: 768px) {
+  .sales-page {
+    padding: 15px;
+  }
+
+  .sales-form-container {
+    padding: 20px;
+  }
+
+  .sales-page h1 {
+    font-size: 1.6rem;
+  }
+
+  .sales-form-container input, 
+  .sales-form-container button {
+    font-size: 0.95rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .sales-form-container {
+    padding: 15px;
+  }
+
+  .sales-page h1 {
+    font-size: 1.4rem;
+  }
+
+  .sales-form-container input, 
+  .sales-form-container button {
+    font-size: 0.9rem;
+    padding: 8px 10px;
+  }
+}

@@ -1,0 +1,234 @@
+/* =======================
+   🌐 التنسيق العام للصفحة
+======================= */
+.page {
+  max-width: 1200px;
+  margin: auto;
+  padding: 20px;
+  font-family: "Tahoma", sans-serif;
+  direction: rtl;
+  text-align: right;
+  color: #222;
+  background: #fafafa;
+}
+.h4-details
+{
+  text-align: center;
+  margin-bottom: 20px;
+  font-size: 28px;
+  color: #333;
+}
+.h3-details{
+  border-bottom: 1px solid;
+    text-align: center;
+    margin-bottom: 50px;
+    width: fit-content;
+    margin: 90px 0;
+    margin-bottom: 21px;
+    background: #2c3e50;
+    padding: 6px 30px;
+    font-size: 33px;
+    color: white;
+    border-radius: 20px;
+   
+}
+
+
+
+/* =======================
+   🎛️ الفلاتر
+======================= */
+.filters {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.filters select,
+.filters input,
+.filters button {
+  padding: 8px 12px;
+  font-size: 14px;
+  border: 1px solid #bbb;
+  border-radius: 6px;
+  outline: none;
+}
+
+.filters button {
+  background: #007bff;
+  color: #fff;
+  cursor: pointer;
+  border: none;
+  transition: 0.3s;
+}
+
+.filters button:hover {
+  background: #0056b3;
+}
+
+/* =======================
+   📊 الملخص
+======================= */
+.summary {
+  background: #fdfdfd;
+  border: 1px solid #ddd;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  box-shadow: 0px 2px 5px rgba(0,0,0,0.05);
+}
+
+.summary ul {
+  list-style: none;
+  padding: 0;
+}
+
+.summary li {
+  font-size: 16px;
+  margin: 6px 0;
+}
+
+.summary strong {
+  color: #28a745;
+  font-weight: bold;
+}
+
+/* =======================
+   📋 الجداول
+======================= */
+.tables table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 65px;
+  background: #fff;
+}
+
+.tables th,
+.tables td {
+  border: 1px solid #ccc;
+  padding: 10px;
+  text-align: center;
+  font-size: 17px;
+}
+
+.tables th {
+      background: #2c3e50;
+    font-weight: bold;
+    color: white;
+    font-size: 19px;
+}
+
+
+.tables tbody tr:nth-child(even) {
+  background: #52677c26;
+}
+
+.tables tbody tr:hover {
+  background: #f1f7ff;
+}
+
+/* =======================
+   🎯 الأزرار أسفل التقرير
+======================= */
+.actions {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.actions button {
+  padding: 10px 16px;
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.actions button:first-child {
+  background: #28a745;
+  color: white;
+}
+
+.actions button:first-child:hover {
+  background: #1e7e34;
+}
+
+.actions button:last-child {
+  background: #25d366;
+  color: white;
+}
+
+.actions button:last-child:hover {
+  background: #128c7e;
+}
+
+/* =======================
+   🖨️ تحسين تنسيق الطباعة
+======================= */
+@media print {
+  body {
+    font-family: "Tahoma", sans-serif;
+    color: #000;
+    background: #fff;
+  }
+
+  .filters,
+  .actions {
+    display: none !important; /* إخفاء الفلاتر والأزرار */
+  }
+
+  .page {
+    max-width: 100%;
+    padding: 0;
+  }
+
+  h1, h2, h3, h4 {
+    text-align: center;
+    margin: 10px 0;
+    color: #000;
+  }
+
+  table {
+    border: 1px solid #000;
+    margin: 10px 0;
+  }
+
+  th, td {
+    border: 1px solid #000;
+    padding: 6px;
+    font-size: 13px;
+  }
+
+  .summary {
+    border: 1px solid #000;
+    box-shadow: none;
+    margin-bottom: 10px;
+  }
+
+  .summary strong {
+    color: #000;
+  }
+}
+
+
+@media (max-width: 768px) {
+  .page {
+    margin-right: 0;
+  }
+
+  .filters {
+    flex-direction: column;
+  }
+
+  .tables {
+    overflow-x: auto;
+  }
+  .h3-details{
+    text-align: center;
+            margin: 43px auto;
+  }
+}

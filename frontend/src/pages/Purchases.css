@@ -1,0 +1,196 @@
+/* Purchases.css - responsive, clear spacing and buttons */
+
+/* Base */
+:root{
+  --bg: #ffffff;
+  --muted: #6b7280;
+  --accent: #075985;
+  --accent-2: #0ea5a4;
+  --danger: #dc2626;
+  --card: #f8fafc;
+}
+
+body {
+  font-family: Inter, "Segoe UI", Tahoma, Helvetica, Arial, sans-serif;
+  background: var(--bg);
+  color: #111827;
+  direction: rtl;
+}
+
+/* Container */
+.purchases-page{
+  max-width: 1200px;
+  margin: 16px auto;
+  padding: 12px;
+}
+.icon-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 18px; /* حجم الأيقونة */
+  margin: 0 5px;
+  color: #333;
+}
+
+.icon-btn:hover {
+  color: #007bff; /* لون عند المرور */
+}
+
+.icon-btn.danger:hover {
+  color: red;
+}
+
+
+/* Header */
+.purchases-header{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:space-between;
+  gap:12px;
+  align-items:center;
+  margin-bottom: 16px;
+}
+
+.purchases-header h1{
+  margin:0;
+  font-size:1.6rem;
+}
+
+.header-actions{
+  display:flex;
+  gap:12px;
+  align-items:center;
+}
+
+.filter-wrap {
+  display:flex;
+  gap:8px;
+  align-items:center;
+  background: var(--card);
+  padding:6px 8px;
+  border-radius:8px;
+}
+
+.filter-label{ font-size:0.95rem; color:var(--muted) }
+
+.btn-group{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+
+/* Buttons */
+.btn{
+  padding:8px 12px;
+  border-radius:8px;
+  border: none;
+  cursor: pointer;
+  font-weight:600;
+  font-size:0.95rem;
+}
+
+.btn-primary{
+  background: var(--accent);
+  color: #fff;
+}
+
+.btn-secondary{
+  background: #fff;
+  border:1px solid #e6e9ee;
+  color: var(--accent);
+}
+
+/* Form area */
+.form-area{
+  margin-bottom: 18px;
+  background:#fff;
+  border:1px solid #e6e9ee;
+  padding:12px;
+  border-radius:10px;
+  box-shadow: 0 4px 12px rgba(16,24,40,0.03);
+}
+
+/* Table */
+.table-wrap{
+  overflow-x:auto;
+  background: #fff;
+  border-radius:10px;
+  padding:6px;
+  border:1px solid #eef2f6;
+}
+
+.purchases-table{
+  width:100%;
+  border-collapse:collapse;
+  min-width: 860px;
+}
+.purchases-table tbody tr:nth-child(odd) {
+  background-color: var(--row-odd);
+}
+.purchases-table tbody tr:nth-child(even) {
+  background-color: var(--row-even);
+}
+
+.purchases-table th,
+.purchases-table td{
+     padding: 10px 12px;
+    border: .1px solid #2563ebad;
+    text-align: center;
+    vertical-align: middle;
+    font-size: 0.95rem;
+}
+
+.purchases-table th{
+  background: #007bff;
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 1.2rem;
+}
+
+.col-product{
+  max-width:250px;
+  word-break:break-word;
+}
+
+/* Actions column */
+.actions-cell{
+  display:flex;
+  gap:6px;
+  justify-content:flex-end;
+  align-items:center;
+}
+
+.icon-btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding:6px 8px;
+  border-radius:8px;
+  border:1px solid #e6e9ee;
+  background:#fff;
+  cursor:pointer;
+  font-size:1.3rem;
+}
+
+.icon-btn:hover { box-shadow: 0 6px 16px rgba(16,24,40,0.04) }
+
+.icon-btn.danger{
+  border-color: rgba(220,38,38,0.15);
+  background: #fff5f5;
+  color: var(--danger);
+}
+
+/* Responsive */
+@media (max-width: 900px){
+  .purchases-header{ flex-direction:column; gap:10px; }
+  .table-wrap{ padding:4px; }
+  .purchases-table th, .purchases-table td{ padding:8px; font-size:0.9rem }
+  .col-product{ max-width:160px; }
+}
+
+@media (max-width: 520px){
+  .purchases-page{ padding:8px; }
+  .purchases-header h1{ font-size:1.2rem; }
+  .btn{ padding:8px 10px; font-size:0.9rem; }
+  .actions-cell{ gap:4px }
+  .purchases-table{ min-width: 720px; } /* allow horizontal scroll */
+}
+
+/* small utility */
+.text-muted{ color:var(--muted); font-size:0.9rem }

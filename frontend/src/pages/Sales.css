@@ -1,0 +1,203 @@
+/* 🎨 ستايل صفحة المبيعات */
+.sales-page {
+  padding: 20px;
+  background: #f9fafb;
+  min-height: 100vh;
+  box-sizing: border-box;
+  font-family: 'Cairo', sans-serif;
+  
+}
+
+/* عنوان */
+.sales-page h1 {
+  font-size: 26px;
+  margin-bottom: 20px;
+  color: #1f2937;
+  text-align: center;
+}
+
+/* زرار إضافة عملية */
+.btn-primary {
+  background: #2563eb;
+  color: #fff;
+  padding: 10px 18px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 15px;
+  transition: background 0.3s;
+  display: block;
+  margin: 0 auto 20px auto;
+}
+
+.btn-primary:hover {
+  background: #1e40af;
+}
+
+/* 🆕 الفلاتر (مودرن) */
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 20px 0;
+  background: #fff;
+  padding: 15px;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  justify-content: center;
+}
+
+.filters input,
+.filters button {
+  padding: 10px 14px;
+  font-size: 14px;
+  border-radius: 6px;
+  border: 1px solid #e5e7eb;
+  transition: all 0.2s ease-in-out;
+}
+
+.filters input:focus {
+  border-color: #2563eb;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(37,99,235,0.2);
+}
+
+.filters button {
+  background: #10b981;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+}
+
+.filters button:hover {
+  background: #059669;
+  transform: translateY(-2px);
+}
+
+/* البحث */
+.search-bar {
+  margin: 15px 0;
+  text-align: center;
+}
+
+.search-bar input {
+  width: 100%;
+  max-width: 400px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  font-size: 14px;
+  transition: border 0.2s;
+}
+
+.search-bar input:focus {
+  border-color: #2563eb;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(37,99,235,0.2);
+}
+
+/* 📊 الجدول مع scroll أفقي على الموبايل */
+.table-wrapper {
+  width: 100%;
+  overflow-x: auto; /* يضيف شريط التمرير الأفقي عند الحاجة */
+}
+
+/* الجدول نفسه */
+.sales-table {
+  width: 100%;
+  min-width: 800px; /* يضمن عرض الجدول بحيث يظهر scroll عند الحاجة */
+  border-collapse: collapse;
+  background: #fff;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+
+/* التجاوب */
+@media (max-width: 768px){
+  .sales-page { margin-right: 0; padding: 10px; }
+  .filters { flex-direction: column; align-items: stretch; }
+
+  /* الجدول يبقى قابل للتمرير أفقياً */
+  .table-wrapper { overflow-x: auto; }
+  .sales-table { display: table; white-space: nowrap; }
+
+  .sales-table th,
+  .sales-table td { font-size: 13px; padding: 8px; }
+  .sales-table button { margin: 0; padding: 13px 7px; }
+}
+
+
+.sales-table th,
+.sales-table td {
+  padding: 12px;
+    text-align: center;
+    border-bottom: 1px solid #e5e7eb;
+    border-right: .3px solid #16357955;
+}
+
+.sales-table th {
+  background: #2563eb;
+  font-weight: bold;
+  color: #fff;
+  font-size: 14px;
+  text-transform: uppercase;
+}
+
+/* 🆕 صفوف متبادلة */
+.sales-table tbody tr:nth-child(odd) {
+  background: #f9fafb;
+}
+.sales-table tbody tr:nth-child(even) {
+  background: #d1deeba8;
+}
+
+.sales-table tbody tr:hover {
+  background: #e0f2fe;
+  transition: background 0.2s;
+}
+
+/* أزرار العمليات */
+.sales-table button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 26px;
+  margin: 0 3px;
+  transition: transform 0.2s, color 0.2s;
+  color: #374151;
+}
+
+.sales-table button:hover {
+  transform: scale(1.2);
+}
+
+/* أيقونات بلون مميز */
+.sales-table button:nth-child(1) { color: #27ae60; } /* print */
+.sales-table button:nth-child(2) { color: #2ecc71; } /* whatsapp */
+.sales-table button:nth-child(3) { color: #f39c12; } /* edit */
+.sales-table button:nth-child(4) { color: #e74c3c; } /* delete */
+
+/* 🖥️ التجاوب */
+@media (max-width: 768px) {
+  .filters {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .sales-table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+
+  .sales-table th,
+  .sales-table td {
+    font-size: 13px;
+    padding: 8px;
+  }
+  .sales-table button{
+    margin: 0;
+        padding: 13px 7px;
+  }
+}
