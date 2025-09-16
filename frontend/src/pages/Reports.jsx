@@ -173,7 +173,7 @@ export default function Reports() {
                 return;
             }
 
-            const res = await axios.get("http://localhost:5000/api/reports", { params });
+            const res = await axios.get("https://mr-tareq-manegement-backend.onrender.com/api/reports", { params });
             setReport(res.data);
         } catch (err) {
             console.error("Error fetching report:", err);

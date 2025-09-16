@@ -178,7 +178,7 @@ async function sendReportEmail(buffer) {
 async function generateAndSendDailyReport() {
     try {
         const today = new Date().toISOString().split("T")[0];
-        const res = await axios.get("http://localhost:5000/api/reports", {
+        const res = await axios.get("https://mr-tareq-manegement-backend.onrender.com/api/reports", {
             params: { type: "daily", date: today },
         });
         const report = res.data;

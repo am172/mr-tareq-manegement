@@ -13,7 +13,7 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   const api = axios.create({
-    baseURL: 'http://localhost:5000',
+    baseURL: 'https://mr-tareq-manegement-backend.onrender.com',
     timeout: 10000,
   });
 
