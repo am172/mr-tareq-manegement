@@ -14,7 +14,7 @@ export function AuthProvider({ children }) {
 
   const api = axios.create({
     baseURL: 'https://mr-tareq-manegement-backend.onrender.com',
-    timeout: 10000,
+    timeout: 900000,
   });
 
  // تعديل interceptor لرؤية ما يحدث
