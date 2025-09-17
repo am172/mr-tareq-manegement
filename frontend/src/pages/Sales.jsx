@@ -17,7 +17,7 @@ const translations = {
         total: 'الإجمالي',
         date: 'التاريخ',
         actions: 'العمليات',
-        invoice: 'فاتورة بيع',
+        invoice: 'فاتورة بيع / عقد بيع سيارات',
         searchPlaceholder: 'بحث باسم المنتج أو المشتري',
         monthFilter: 'تصفية بالشهر',
         periodFilter: 'تصفية بالمدة',
@@ -35,7 +35,7 @@ const translations = {
         total: 'Total',
         date: 'Date',
         actions: 'Actions',
-        invoice: 'Sales Invoice',
+        invoice: 'Sales Invoice / Car Sales Agreement',
         searchPlaceholder: 'Search by product or buyer',
         monthFilter: 'Filter by month',
         periodFilter: 'Filter by period',
@@ -53,7 +53,7 @@ const translations = {
         total: '总计',
         date: '日期',
         actions: '操作',
-        invoice: '销售发票',
+        invoice: '销售发票 / 汽车销售协议',
         searchPlaceholder: '按产品或买家搜索',
         monthFilter: '按月份筛选',
         periodFilter: '按期间筛选',
@@ -103,28 +103,85 @@ const Sales = () => {
         <head>
           <title>${t.invoice}</title>
           <style>
-            body { font-family: Arial; direction: ${language === 'ar' ? 'rtl' : 'ltr'}; padding: 20px; }
-            h2 { text-align: center; }
+            body { font-family: Arial; direction: ${language === 'ar' ? 'rtl' : 'ltr'}; padding: 20px; line-height: 1.6; }
+            h2, h3 { text-align: center; }
             table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-            th, td { border: 1px solid #000; padding: 8px; text-align: center; }
+            th, td { border: 1px solid #000; padding: 6px; text-align: center; }
             th { background: #eee; }
+            .header { text-align: center; margin-bottom: 20px; }
+            .signatures { margin-top: 40px; display: flex; justify-content: space-between; }
           </style>
         </head>
         <body>
-          <h2>${t.invoice}</h2>
+          <div class="header">
+            <h2>WAZIR GLOBALX FZCO</h2>
+            <p>License No.: 6765 | Registration No.: 65609</p>
+            <p>Address 1: IFZA DIGITAL PARK – A2, Dubai Silicon Oasis, Dubai, UAE</p>
+            <p>Address 2: Burjuman Business Tower, Khalid Bin Walid Road, Dubai, UAE, Unit No: BT09-967</p>
+            <p>Phone/WhatsApp: +971581079794 | Website: www.wazirglobalx.com | Email: [To be added]</p>
+          </div>
+
+          <h3>عقد بيع سيارات / Car Sales Agreement</h3>
+
+          <p>1- هذا العقد مبرم بين شركة وزير جلوبال إكس (البائع) والمشتري الموضحة بياناته أدناه.<br>
+          1- This agreement is made between Wazir GlobalX FZCO (the Seller) and the Buyer whose details are provided below.</p>
+
+          <p>2- يقر البائع ببيع المركبة/المركبات الموضحة في الملحق، ويقر المشتري بشرائها وفق الشروط والأحكام المذكورة.<br>
+          2- The Seller agrees to sell the vehicle(s) listed in the annex, and the Buyer agrees to purchase them under the stated terms and conditions.</p>
+
+          <p>3- يلتزم المشتري بدفع مبلغ مقدم والرصيد النهائي في التواريخ المتفق عليها.<br>
+          3- The Buyer undertakes to pay a deposit and the remaining balance on the agreed dates.</p>
+
+          <p>4- يتم تسليم السيارة في المدة المتفق عليها، وفي حال التأخير يلتزم البائع بإخطار المشتري كتابيًا.<br>
+          4- The vehicle will be delivered within the agreed timeframe, and in case of delay, the Seller shall notify the Buyer in writing.</p>
+
+          <p>5- في حال تأخر المشتري عن الدفع، يحق للبائع فرض غرامة تأخير بنسبة ___% عن كل يوم/أسبوع تأخير.<br>
+          5- In case of late payment by the Buyer, the Seller may impose a late fee of ___% for each day/week of delay.</p>
+
+          <p>6- يضمن البائع خلو المركبة من أي حقوق أو التزامات مالية حتى تاريخ التسليم.<br>
+          6- The Seller guarantees that the vehicle is free from any financial encumbrances until the delivery date.</p>
+
+          <p>7- يخضع هذا العقد لقوانين إمارة دبي ودولة الإمارات العربية المتحدة.<br>
+          7- This agreement is governed by the laws of the Emirate of Dubai and the United Arab Emirates.</p>
+
+          <h3>ملحق توصيف السيارات / Car Specification Annex</h3>
           <table>
-            <tr><th>${t.product}</th><td>${sale.productName}</td></tr>
-            <tr><th>${t.buyer}</th><td>${sale.buyer}</td></tr>
-            <tr><th>${t.quantity}</th><td>${sale.quantity}</td></tr>
-            <tr><th>${t.price}</th><td>${sale.price}</td></tr>
-            <tr><th>${t.discount}</th><td>${sale.discount || 0}</td></tr>
-            <tr><th>${t.total}</th><td>${sale.total}</td></tr>
-            <tr><th>${t.date}</th><td>${new Date(sale.date).toLocaleDateString('en-GB')}</td></tr>
+            <thead>
+              <tr>
+                <th>رقم<br>No.</th>
+                <th>النوع<br>Type</th>
+                <th>الموديل<br>Model</th>
+                <th>سنة الصنع<br>Year</th>
+                <th>اللون<br>Color</th>
+                <th>رقم الشاسيه<br>Chassis No.</th>
+                <th>الحالة<br>Condition</th>
+                <th>السعر<br>Price</th>
+                <th>ملاحظات<br>Remarks</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>1</td>
+                <td>${sale.productName}</td>
+                <td>${sale.model || ''}</td>
+                <td>${sale.year || ''}</td>
+                <td>${sale.color || ''}</td>
+                <td>${sale.chassis || ''}</td>
+                <td>${sale.condition || ''}</td>
+                <td>${sale.total}</td>
+                <td>${sale.remarks || ''}</td>
+              </tr>
+            </tbody>
           </table>
+
+          <div class="signatures">
+            <p>توقيع البائع: ____________<br>Seller’s Signature: ____________</p>
+            <p>توقيع المشتري: ____________<br>Buyer’s Signature: ____________</p>
+          </div>
         </body>
       </html>
     `;
-        const newWindow = window.open('', '', 'width=600,height=400');
+        const newWindow = window.open('', '', 'width=900,height=700');
         newWindow.document.write(printContent);
         newWindow.document.close();
         newWindow.print();
@@ -176,14 +233,6 @@ ${t.total}: ${sale.total}`;
         <div className="sales-page">
             <div className="top-bar">
                 <h1>{t.title}</h1>
-                {/* <div className="language-select">
-                    <label>Language: </label>
-                    <select value={language} onChange={e => setLanguage(e.target.value)}>
-                        <option value="ar">العربية</option>
-                        <option value="en">English</option>
-                        <option value="zh">中文</option>
-                    </select>
-                </div> */}
             </div>
 
             <button className="btn-primary" onClick={() => { setEditSale(null); setShowForm(true); }}>
@@ -211,7 +260,7 @@ ${t.total}: ${sale.total}`;
             <div className="search-bar">
                 <input type="text" placeholder={t.searchPlaceholder} value={search} onChange={e => setSearch(e.target.value)} />
             </div>
-            <div class="table-wrapper">
+            <div className="table-wrapper">
                 <table className="sales-table">
                     <thead>
                         <tr>
@@ -251,3 +300,4 @@ ${t.total}: ${sale.total}`;
 };
 
 export default Sales;
+            
