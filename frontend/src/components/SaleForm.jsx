@@ -47,8 +47,8 @@ const translations = {
 
 const SalesForm = ({ onClose, existingSale }) => {
   const { api } = useAuth();
-  const { language } = useLanguage(); // اللغة من السياق
-  const t = translations[language]; // اختصار للوصول للنصوص
+  const { language } = useLanguage();
+  const t = translations[language];
 
   const [inventory, setInventory] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -119,8 +119,22 @@ const SalesForm = ({ onClose, existingSale }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!form.productName || !form.price || !form.buyer || !form.quantity) return alert('الرجاء تعبئة جميع الحقول');
-    if (form.quantity > availableQty && !existingSale) return alert('الكمية المطلوبة أكبر من المتاحة');
+    if (!form.productName || !form.price || !form.buyer || !form.quantity) {
+      return alert('الرجاء تعبئة جميع الحقول');
+    }
+    if (form.quantity > availableQty && !existingSale) {
+      return alert('الكمية المطلوبة أكبر من المتاحة');
+    }
+
+    // ✅ تحقق إن السعر المدخل مش أقل من سعر الشراء (selectedProduct.price)
+    // ✅ تحقق إن السعر المدخل مش أقل من سعر الشراء (selectedProduct.price)
+if (selectedProduct && parseFloat(form.price) < selectedProduct.price) {
+  const confirmProceed = window.confirm('⚠️ السعر المدخل أقل من سعر الشراء للمنتج، هل أنت متأكد من العملية؟');
+  if (!confirmProceed) {
+    return; // ❌ وقف العملية لو المستخدم رفض
+  }
+}
+
 
     try {
       const payload = {
@@ -177,16 +191,37 @@ const SalesForm = ({ onClose, existingSale }) => {
           )}
 
           <label>{t.price}</label>
-          <input type="number" step="0.01" value={form.price} onChange={e => setForm({ ...form, price: e.target.value })} required />
+          <input
+            type="number"
+            step="0.01"
+            value={form.price}
+            onChange={e => setForm({ ...form, price: e.target.value })}
+            required
+          />
 
           <label>{t.buyer}</label>
           <input type="text" value={form.buyer} onChange={e => setForm({ ...form, buyer: e.target.value })} required />
 
-          <label>{t.quantity} {existingSale ? '' : <span className="available">({t.available}: {availableQty})</span>}</label>
-          <input type="number" value={form.quantity} onChange={e => setForm({ ...form, quantity: e.target.value })} max={availableQty} min="1" required />
+          <label>
+            {t.quantity} {existingSale ? '' : <span className="available">({t.available}: {availableQty})</span>}
+          </label>
+          <input
+            type="number"
+            value={form.quantity}
+            onChange={e => setForm({ ...form, quantity: e.target.value })}
+            max={availableQty}
+            min="1"
+            required
+          />
 
           <label>{t.discount}</label>
-          <input type="number" step="0.01" value={form.discount} onChange={e => setForm({ ...form, discount: e.target.value })} placeholder="%" />
+          <input
+            type="number"
+            step="0.01"
+            value={form.discount}
+            onChange={e => setForm({ ...form, discount: e.target.value })}
+            placeholder="%"
+          />
 
           <button type="submit" disabled={availableQty === 0 && !existingSale}>
             {existingSale ? t.submitEdit : t.submitAdd}
