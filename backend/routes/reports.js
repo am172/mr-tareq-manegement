@@ -1,24 +1,22 @@
 const express = require('express');
 const router = express.Router();
-const Purchase = require('../models/Purchase'); // المخزن
+const Purchase = require('../models/Purchase'); 
 const Sale = require('../models/Sale');
 const Expense = require('../models/Expense');
 
-// ✅ تقرير شامل مع بيانات المخزن
 router.get('/', async (req, res) => {
     try {
-        const { type, from, to, month, year } = req.query;
+        const { type, from, to, month, year, date } = req.query;
         let startDate, endDate;
 
-        if (type === 'daily' && req.query.date) {
-            startDate = new Date(req.query.date);
+        if (type === 'daily' && date) {
+            startDate = new Date(date);
             startDate.setHours(0, 0, 0, 0);
-
-            endDate = new Date(req.query.date);
+            endDate = new Date(date);
             endDate.setHours(23, 59, 59, 999);
         } else if (type === 'monthly' && month && year) {
             startDate = new Date(year, month - 1, 1);
-            endDate = new Date(year, month, 0, 23, 59, 59, 999);
+            endDate = new Date(year, month, 0, 23, 59, 999);
         } else if (type === 'custom' && from && to) {
             startDate = new Date(from);
             endDate = new Date(to);
@@ -26,65 +24,49 @@ router.get('/', async (req, res) => {
             return res.status(400).json({ message: 'الرجاء تحديد نوع التقرير والفترة' });
         }
 
-        // ✅ المبيعات
-        const sales = await Sale.find({
-            date: { $gte: startDate, $lte: endDate },
-        });
+        // ✅ نجيب المبيعات والمشتريات والمصروفات
+        const sales = await Sale.find({ date: { $gte: startDate, $lte: endDate } });
+        const purchases = await Purchase.find({ purchaseDate: { $gte: startDate, $lte: endDate } });
+        const expenses = await Expense.find({ date: { $gte: startDate, $lte: endDate } });
 
-        const totalSales = sales.reduce((acc, s) => {
-            const subtotal = s.price * s.quantity;
-            const discountAmount = (s.discount || 0) / 100 * subtotal;
-            return acc + (subtotal - discountAmount);
-        }, 0);
+        // ✅ نحسب الأرباح "الحقيقية" (matching sale with purchase)
+        let totalSales = 0;
+        let totalPurchases = 0;
+        let matchedProfit = 0;
 
-        // ✅ المشتريات
-        const purchases = await Purchase.find({
-            purchaseDate: { $gte: startDate, $lte: endDate },
-        });
+        for (const sale of sales) {
+            const saleTotal = sale.price * sale.quantity - ((sale.discount || 0) / 100 * (sale.price * sale.quantity));
+            totalSales += saleTotal;
 
-        // نضيف حسبة الكمية لكل عملية شراء
-        const purchasesWithQuantity = purchases.map(p => {
-            let quantity = 0;
-            if (p.price && p.total) {
-                quantity = p.total / p.price;
+            // نلاقي سعر الشراء لنفس المنتج
+            const purchase = purchases.find(p => p.productName === sale.productName);
+            if (purchase) {
+                const costPerItem = purchase.price;
+                const purchaseCost = costPerItem * sale.quantity;
+                matchedProfit += (saleTotal - purchaseCost);
+                totalPurchases += purchaseCost;
             }
-            return {
-                ...p.toObject(),
-                quantity: Number(quantity.toFixed(2)) // عشان يبقى رقم مضبوط
-            };
-        });
-
-        const totalPurchases = purchases.reduce((sum, p) => sum + p.total, 0);
-
-
-        // ✅ المصروفات
-        const expenses = await Expense.find({
-            date: { $gte: startDate, $lte: endDate },
-        });
+        }
 
         const totalExpenses = expenses.reduce((sum, e) => sum + e.amount, 0);
+        const netProfit = matchedProfit - totalExpenses;
 
-        // ✅ بيانات المخزن (كل المنتجات)
-        const inventory = await Purchase.find({}); // أو أي فلتر تحبه للكمية المتاحة
-        // ممكن بعد كده تعمل فلتر على الكمية المتاحة لو عايز تعرض بس المخزون المتوفر
-        // .find({ quantity: { $gt: 0 } });
-
-        // ✅ صافي الربح
-        const profit = totalSales - (totalPurchases + totalExpenses);
+        // ✅ بيانات المخزن (باقي المشتريات اللي لسه متباعتش)
+        const inventory = await Purchase.find({});
 
         res.json({
             summary: {
                 sales: totalSales,
                 purchases: totalPurchases,
                 expenses: totalExpenses,
-                profit,
+                profit: netProfit
             },
             details: {
                 sales,
                 purchases,
                 expenses,
-                inventory, // 👈 إضافتنا هنا
-            },
+                inventory
+            }
         });
 
     } catch (error) {
