@@ -13,6 +13,7 @@ const translations = {
         custom: "مخصص",
         show: "عرض",
         summary: "الملخص",
+        profitDesc: "💡  الأرباح في هذا التقرير لا تُحسب بطرح جميع المشتريات من المبيعات،وإنما على أساس تكلفة البضائع التي تم بيعها فعليًا خلال الفترة المحددة فقط.ثم تُخصم المصروفات التشغيلية للوصول إلى صافي الربح الحقيقي،مما يعكس النتيجة المالية الفعلية للنشاط دون احتساب المخزون الذي لم يتم تداوله بعد",
         totalSales: "إجمالي المبيعات",
         totalPurchases: "إجمالي المشتريات",
         totalExpenses: "إجمالي المصروفات",
@@ -55,6 +56,7 @@ const translations = {
         custom: "Custom",
         show: "Show",
         summary: "Summary",
+        profitDesc: "Profits in this report are calculated only on the basis of the cost of goods actually sold during the selected period, then operating expenses are deducted to reach the true net profit without counting unsold inventory",
         totalSales: "Total Sales",
         totalPurchases: "Total Purchases",
         totalExpenses: "Total Expenses",
@@ -97,6 +99,7 @@ const translations = {
         custom: "自定义",
         show: "显示",
         summary: "摘要",
+        profitDesc: "本报告中的利润仅根据所选期间内实际售出的货物成本计算，然后再扣除运营费用以得出真实的净利润，不包含未出售的库存",
         totalSales: "总销售额",
         totalPurchases: "总采购额",
         totalExpenses: "总支出",
@@ -176,7 +179,7 @@ export default function Reports() {
             }
 
             const res = await axios.get("https://mr-tareq-manegement-backend.onrender.com/api/reports", { params });
-            setReport(res.data);
+              setReport(res.data);
         } catch (err) {
             console.error("Error fetching report:", err);
             setReport(null);
@@ -205,10 +208,7 @@ export default function Reports() {
         win.document.write(`<html><head><title>${t.financialReport}</title>${style}</head><body>${content}</body></html>`);
         win.document.close();
         win.focus();
-        setTimeout(() => {
-            win.print();
-            win.close();
-        }, 500);
+        win.print();  // 👈 كده بس
     };
 
     const handleWhatsApp = () => {
@@ -216,6 +216,20 @@ export default function Reports() {
         const text = `${t.financialReport}\n${t.totalSales}: ${report.summary.sales}\n${t.totalPurchases}: ${report.summary.purchases}\n${t.totalExpenses}: ${report.summary.expenses}\n${t.netProfit}: ${report.summary.profit}`;
         window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank");
     };
+    // ✅ دالة تعرض وصف الفترة حسب الفلتر
+    const getFilterDescription = () => {
+        if (filterType === "daily" && dailyDate) {
+            return `${t.daily} - ${new Date(dailyDate).toLocaleDateString()}`;
+        }
+        if (filterType === "monthly" && month && year) {
+            return `${t.monthly} - ${month}/${year}`;
+        }
+        if (filterType === "custom" && from && to) {
+            return `${t.custom} - ${new Date(from).toLocaleDateString()} ${t.to} ${new Date(to).toLocaleDateString()}`;
+        }
+        return "";
+    };
+
 
     return (
         <div className="page">
@@ -267,16 +281,21 @@ export default function Reports() {
                     {/* ✅ الملخص في جدول */}
                     {report && (
                         <div id="reportContent">
+
+                            <h3 style={{ textAlign: "center", marginBottom: "10px" }}>
+                                {getFilterDescription()}
+                            </h3>
                             {/* ✅ الملخص */}
                             <div className="tables">
                                 <h2>{t.summary}</h2>
+                                <p>{t.profitDesc}</p>
                                 <table className="summary-table">
                                     <tbody>
                                         <tr>
                                             <td>{t.totalSales}</td>
                                             <td>{report.summary.sales}</td>
                                             <td>
-                                                <button style={{background:'#1668dc', color:'white'}} onClick={() => setShowSalesDetails(!showSalesDetails)}>
+                                                <button style={{ background: '#1668dc', color: 'white' }} onClick={() => setShowSalesDetails(!showSalesDetails)}>
                                                     {showSalesDetails ? "إخفاء التفاصيل" : "عرض التفاصيل"}
                                                 </button>
                                             </td>
@@ -315,11 +334,12 @@ export default function Reports() {
                                             <td>{t.totalPurchases}</td>
                                             <td>{report.summary.purchases}</td>
                                             <td>
-                                                <button  style={{background:'#1668dc', color:'white'}} onClick={() => setShowPurchasesDetails(!showPurchasesDetails)}>
+                                                <button style={{ background: '#1668dc', color: 'white' }} onClick={() => setShowPurchasesDetails(!showPurchasesDetails)}>
                                                     {showPurchasesDetails ? "إخفاء التفاصيل" : "عرض التفاصيل"}
                                                 </button>
                                             </td>
                                         </tr>
+
                                         {showPurchasesDetails && (
                                             <tr>
                                                 <td colSpan="3">
@@ -373,7 +393,7 @@ export default function Reports() {
                                             <td>{t.totalExpenses}</td>
                                             <td>{report.summary.expenses}</td>
                                             <td>
-                                                <button  style={{background:'#1668dc', color:'white'}} onClick={() => setShowExpensesDetails(!showExpensesDetails)}>
+                                                <button style={{ background: '#1668dc', color: 'white' }} onClick={() => setShowExpensesDetails(!showExpensesDetails)}>
                                                     {showExpensesDetails ? "إخفاء التفاصيل" : "عرض التفاصيل"}
                                                 </button>
                                             </td>
@@ -551,3 +571,4 @@ export default function Reports() {
     );
 }
 
+           
