@@ -143,7 +143,9 @@ export default function Reports() {
     const [from, setFrom] = useState("");
     const [to, setTo] = useState("");
     const { language } = useLanguage();
-
+    const [showSalesDetails, setShowSalesDetails] = useState(false);
+    const [showPurchasesDetails, setShowPurchasesDetails] = useState(false);
+    const [showExpensesDetails, setShowExpensesDetails] = useState(false);
     const t = translations[language];
 
     const fetchReport = async () => {
@@ -262,16 +264,160 @@ export default function Reports() {
 
             {report && (
                 <div id="reportContent">
-                    {/* ✅ الملخص */}
-                    <div className="summary">
-                        <h2>{t.summary}</h2>
-                        <ul>
-                            <li>{t.totalSales}: {report.summary.sales}</li>
-                            <li>{t.totalPurchases}: {report.summary.purchases}</li>
-                            <li>{t.totalExpenses}: {report.summary.expenses}</li>
-                            <li><strong>{t.netProfit}: {report.summary.profit}</strong></li>
-                        </ul>
-                    </div>
+                    {/* ✅ الملخص في جدول */}
+                    {report && (
+                        <div id="reportContent">
+                            {/* ✅ الملخص */}
+                            <div className="tables">
+                                <h2>{t.summary}</h2>
+                                <table className="summary-table">
+                                    <tbody>
+                                        <tr>
+                                            <td>{t.totalSales}</td>
+                                            <td>{report.summary.sales}</td>
+                                            <td>
+                                                <button style={{background:'#1668dc', color:'white'}} onClick={() => setShowSalesDetails(!showSalesDetails)}>
+                                                    {showSalesDetails ? "إخفاء التفاصيل" : "عرض التفاصيل"}
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        {showSalesDetails && (
+                                            <tr>
+                                                <td colSpan="3">
+                                                    <h4>{t.sales}</h4>
+                                                    <table>
+                                                        <thead>
+                                                            <tr>
+                                                                <th>{t.product}</th>
+                                                                <th>{t.quantity}</th>
+                                                                <th>{t.price}</th>
+                                                                <th>{t.total}</th>
+                                                                <th>{t.date}</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            {report.details.sales.map((sale, i) => (
+                                                                <tr key={i}>
+                                                                    <td>{sale.productName}</td>
+                                                                    <td>{sale.quantity}</td>
+                                                                    <td>{sale.price}</td>
+                                                                    <td>{sale.price * sale.quantity}</td>
+                                                                    <td>{new Date(sale.date).toLocaleDateString()}</td>
+                                                                </tr>
+                                                            ))}
+                                                        </tbody>
+                                                    </table>
+                                                </td>
+                                            </tr>
+                                        )}
+
+                                        <tr>
+                                            <td>{t.totalPurchases}</td>
+                                            <td>{report.summary.purchases}</td>
+                                            <td>
+                                                <button  style={{background:'#1668dc', color:'white'}} onClick={() => setShowPurchasesDetails(!showPurchasesDetails)}>
+                                                    {showPurchasesDetails ? "إخفاء التفاصيل" : "عرض التفاصيل"}
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        {showPurchasesDetails && (
+                                            <tr>
+                                                <td colSpan="3">
+                                                    <h4>{t.purchases}</h4>
+                                                    <table>
+                                                        <thead>
+                                                            <tr>
+                                                                <th>{t.product}</th>
+                                                                <th>{t.quantity}</th>
+                                                                <th>{t.price}</th>
+                                                                <th>{t.total}</th>
+                                                                <th>{t.date}</th>
+                                                                <th>{t.supplier}</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            {report.details.sales.map((sale, i) => {
+                                                                // نجيب المشتريات اللي تخص المنتج ده
+                                                                const relatedPurchase = report.details.purchases.find(
+                                                                    (p) => p.productName === sale.productName
+                                                                );
+
+                                                                if (!relatedPurchase) return null;
+
+                                                                return (
+                                                                    <tr key={i}>
+                                                                        <td>{relatedPurchase.productName}</td>
+                                                                        {/* الكمية = اللي اتباعت فقط */}
+                                                                        <td>{sale.quantity}</td>
+                                                                        <td>{relatedPurchase.price}</td>
+                                                                        <td>{relatedPurchase.price * sale.quantity}</td>
+                                                                        <td>{new Date(relatedPurchase.purchaseDate).toLocaleDateString()}</td>
+                                                                        <td>{relatedPurchase.supplier}</td>
+                                                                    </tr>
+                                                                );
+                                                            })}
+                                                        </tbody>
+                                                    </table>
+                                                </td>
+                                            </tr>
+                                        )}
+
+
+                                        {/* 📌 الأرباح (المبيعات - المشتريات) */}
+                                        <tr>
+                                            <td>💰 الأرباح</td>
+                                            <td><strong>{report.summary.sales - report.summary.purchases}</strong></td>
+                                        </tr>
+
+                                        <tr>
+                                            <td>{t.totalExpenses}</td>
+                                            <td>{report.summary.expenses}</td>
+                                            <td>
+                                                <button  style={{background:'#1668dc', color:'white'}} onClick={() => setShowExpensesDetails(!showExpensesDetails)}>
+                                                    {showExpensesDetails ? "إخفاء التفاصيل" : "عرض التفاصيل"}
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        {showExpensesDetails && (
+                                            <tr>
+                                                <td colSpan="3">
+                                                    <h4>{t.expenses}</h4>
+                                                    <table>
+                                                        <thead>
+                                                            <tr>
+                                                                <th>{t.titleExpense}</th>
+                                                                <th>{t.category}</th>
+                                                                <th>{t.amount}</th>
+                                                                <th>{t.notes}</th>
+                                                                <th>{t.date}</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            {report.details.expenses.map((expense, i) => (
+                                                                <tr key={i}>
+                                                                    <td>{expense.title}</td>
+                                                                    <td>{expense.category}</td>
+                                                                    <td>{expense.amount}</td>
+                                                                    <td>{expense.notes}</td>
+                                                                    <td>{new Date(expense.date).toLocaleDateString()}</td>
+                                                                </tr>
+                                                            ))}
+                                                        </tbody>
+                                                    </table>
+                                                </td>
+                                            </tr>
+                                        )}
+
+                                        <tr>
+                                            <td>✅ {t.netProfit}</td>
+                                            <td><strong>{report.summary.sales - report.summary.purchases - report.summary.expenses}</strong></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    )}
+
 
                     {/* ✅ التفاصيل */}
                     <h3 className="h3-details">{t.details} 👇</h3>
@@ -404,3 +550,4 @@ export default function Reports() {
         </div>
     );
 }
+
