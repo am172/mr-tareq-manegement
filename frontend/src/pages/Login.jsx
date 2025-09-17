@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import './Login.css';
 
 const translations = {
@@ -42,11 +43,12 @@ const Login = () => {
   const [language, setLanguage] = useState('ar');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const { login, user } = useAuth();
   const navigate = useNavigate();
 
-  const t = translations[language]; // النصوص المختارة حسب اللغة
+  const t = translations[language];
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -100,15 +102,23 @@ const Login = () => {
           />
         </div>
 
-        <div className="form-group">
+        <div className="form-group password-group">
           <label>{t.password}</label>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            disabled={loading}
-          />
+          <div className="password-wrapper">
+            <input
+              type={showPassword ? 'text' : 'password'}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              disabled={loading}
+            />
+            <span
+              className="toggle-password"
+              onClick={() => setShowPassword(prev => !prev)}
+            >
+              {showPassword ? <FaEyeSlash /> : <FaEye />}
+            </span>
+          </div>
         </div>
 
         <div className="form-group">
