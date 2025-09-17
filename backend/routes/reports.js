@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const Purchase = require('../models/Purchase'); 
+const Purchase = require('../models/Purchase');
 const Sale = require('../models/Sale');
 const Expense = require('../models/Expense');
 
@@ -24,16 +24,16 @@ router.get('/', async (req, res) => {
             return res.status(400).json({ message: 'الرجاء تحديد نوع التقرير والفترة' });
         }
 
-        // ✅ 1. نجيب المبيعات بس في الفترة
+        // ✅ 1. المبيعات في الفترة
         const sales = await Sale.find({ date: { $gte: startDate, $lte: endDate } });
 
-        // ✅ 2. نجيب كل أسماء المنتجات اللي اتباعت
+        // ✅ 2. أسماء المنتجات اللي اتباعت
         const soldProducts = [...new Set(sales.map(s => s.productName))];
 
-        // ✅ 3. نجيب المشتريات الخاصة بالمنتجات دي (بغض النظر عن التاريخ)
+        // ✅ 3. المشتريات الخاصة بالمنتجات دي (بغض النظر عن التاريخ)
         const purchases = await Purchase.find({ productName: { $in: soldProducts } });
 
-        // ✅ 4. نجيب المصروفات في الفترة
+        // ✅ 4. المصروفات في الفترة
         const expenses = await Expense.find({ date: { $gte: startDate, $lte: endDate } });
 
         // ✅ 5. الحسابات
@@ -42,7 +42,9 @@ router.get('/', async (req, res) => {
         let matchedProfit = 0;
 
         for (const sale of sales) {
-            const saleTotal = sale.price * sale.quantity - ((sale.discount || 0) / 100 * (sale.price * sale.quantity));
+            const saleTotal =
+                sale.price * sale.quantity -
+                ((sale.discount || 0) / 100 * (sale.price * sale.quantity));
             totalSales += saleTotal;
 
             // نلاقي سعر الشراء للمنتج اللي اتباع
@@ -58,6 +60,33 @@ router.get('/', async (req, res) => {
         const totalExpenses = expenses.reduce((sum, e) => sum + e.amount, 0);
         const netProfit = matchedProfit - totalExpenses;
 
+        // ✅ 6. حساب المخزن (بناءً على المشتريات - المبيعات)
+        let inventory = [];
+        const allPurchases = await Purchase.find(); // كل المشتريات عشان نجيب المخزن الحالي
+
+        for (const product of allPurchases) {
+            const totalPurchasedQty = allPurchases
+                .filter(p => p.productName === product.productName)
+                .reduce((sum, p) => sum + p.quantity, 0);
+
+            const totalSoldQty = await Sale.find({ productName: product.productName })
+                .then(salesList => salesList.reduce((sum, s) => sum + s.quantity, 0));
+
+            const remainingQty = totalPurchasedQty - totalSoldQty;
+
+            if (remainingQty > 0) {
+                inventory.push({
+                    _id: product._id,
+                    serialNumber: product.serialNumber,
+                    productName: product.productName,
+                    type: product.type,
+                    supplier: product.supplier,
+                    quantity: remainingQty
+                });
+            }
+        }
+
+        // ✅ 7. نرجع التقرير
         res.json({
             summary: {
                 sales: totalSales,
@@ -68,7 +97,8 @@ router.get('/', async (req, res) => {
             details: {
                 sales,
                 purchases,
-                expenses
+                expenses,
+                inventory // 👈 المخزن
             }
         });
 
