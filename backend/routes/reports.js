@@ -24,12 +24,19 @@ router.get('/', async (req, res) => {
             return res.status(400).json({ message: 'الرجاء تحديد نوع التقرير والفترة' });
         }
 
-        // ✅ نجيب المبيعات والمشتريات والمصروفات
+        // ✅ 1. نجيب المبيعات بس في الفترة
         const sales = await Sale.find({ date: { $gte: startDate, $lte: endDate } });
-        const purchases = await Purchase.find({ purchaseDate: { $gte: startDate, $lte: endDate } });
+
+        // ✅ 2. نجيب كل أسماء المنتجات اللي اتباعت
+        const soldProducts = [...new Set(sales.map(s => s.productName))];
+
+        // ✅ 3. نجيب المشتريات الخاصة بالمنتجات دي (بغض النظر عن التاريخ)
+        const purchases = await Purchase.find({ productName: { $in: soldProducts } });
+
+        // ✅ 4. نجيب المصروفات في الفترة
         const expenses = await Expense.find({ date: { $gte: startDate, $lte: endDate } });
 
-        // ✅ نحسب الأرباح "الحقيقية" (matching sale with purchase)
+        // ✅ 5. الحسابات
         let totalSales = 0;
         let totalPurchases = 0;
         let matchedProfit = 0;
@@ -38,7 +45,7 @@ router.get('/', async (req, res) => {
             const saleTotal = sale.price * sale.quantity - ((sale.discount || 0) / 100 * (sale.price * sale.quantity));
             totalSales += saleTotal;
 
-            // نلاقي سعر الشراء لنفس المنتج
+            // نلاقي سعر الشراء للمنتج اللي اتباع
             const purchase = purchases.find(p => p.productName === sale.productName);
             if (purchase) {
                 const costPerItem = purchase.price;
@@ -51,9 +58,6 @@ router.get('/', async (req, res) => {
         const totalExpenses = expenses.reduce((sum, e) => sum + e.amount, 0);
         const netProfit = matchedProfit - totalExpenses;
 
-        // ✅ بيانات المخزن (باقي المشتريات اللي لسه متباعتش)
-        const inventory = await Purchase.find({});
-
         res.json({
             summary: {
                 sales: totalSales,
@@ -64,8 +68,7 @@ router.get('/', async (req, res) => {
             details: {
                 sales,
                 purchases,
-                expenses,
-                inventory
+                expenses
             }
         });
 
