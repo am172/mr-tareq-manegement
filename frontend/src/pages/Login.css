@@ -1,7 +1,6 @@
 /* حاوية الصفحة */
 .login-container {
-  display: flex
-;
+  display: flex;
     justify-content: center;
     align-items: center;
     min-height: 86vh;
@@ -127,4 +126,43 @@ button.loading {
     padding: 12px;
     font-size: 15px;
   }
+}
+
+/* حاوية الحقل مع الأيقونة */
+.password-group {
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.password-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-wrapper input {
+  width: 100%;
+  padding: 10px 40px 10px 10px; /* مساحة للأيقونة على اليمين */
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-sizing: border-box;
+}
+
+.password-wrapper .toggle-password {
+ 
+  cursor: pointer;
+  color: #555;
+  font-size: 22px;
+  transition: color 0.2s;
+}
+
+.password-wrapper .toggle-password:hover {
+  color: #000;
+}
+
+/* لو عايز يتوافق مع RTL */
+html[dir="rtl"] .password-wrapper .toggle-password {
+  right: auto;
+  left: 10px;
 }
