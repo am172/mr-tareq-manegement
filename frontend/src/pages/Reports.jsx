@@ -529,7 +529,7 @@ export default function Reports() {
                         </table>
 
                         {/* ✅ جدول المخزن */}
-                        {report.details.inventory && report.details.inventory.length > 0 && (
+{/*                         {report.details.inventory && report.details.inventory.length > 0 && (
                             <>
                                 <h4 className="h4-details">{language === 'ar' ? 'المخزن' : language === 'en' ? 'Inventory' : '库存'}</h4>
                                 <table>
@@ -555,7 +555,7 @@ export default function Reports() {
                                     </tbody>
                                 </table>
                             </>
-                        )}
+                        )} */}
                     </div>
                 </div>
             )}
