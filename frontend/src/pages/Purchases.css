@@ -19,7 +19,7 @@ body {
 
 /* Container */
 .purchases-page{
-  max-width: 1200px;
+  /* max-width: 1200px; */
   margin: 16px auto;
   padding: 12px;
 }
@@ -52,7 +52,7 @@ body {
 }
 
 .purchases-header h1{
-  margin:0;
+  margin:0 auto;
   font-size:1.6rem;
 }
 
