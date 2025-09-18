@@ -80,7 +80,7 @@ function Sidebar({ isOpen, toggleSidebar }) {
             );
           })}
           <hr />
-         
+
           <li>
             <button onClick={handleLogout} className="logout-btn">
               <span className="text">{language === 'ar' ? 'تسجيل خروج' : language === 'zh' ? '退出登录' : 'Logout'}</span>
@@ -99,16 +99,16 @@ function Sidebar({ isOpen, toggleSidebar }) {
         </select>
       </div>
       <hr />
-       
+
       {/* 💰 زر تغيير العملة */}
       <div className="currency-section" style={{ marginTop: '20px', textAlign: 'center' }}>
-        <p style={{ fontSize: '14px', marginBottom: '8px' , padding:'0 10px'}}>
+        <p style={{ fontSize: '14px', marginBottom: '8px', padding: '0 10px' }}>
           {language === 'ar' ? 'العملة الرسمية للموقع هي الدرهم الإماراتي، لتغيير العملة اضغط هنا' :
             language === 'zh' ? '网站官方货币为阿联酋迪拉姆，要更改货币请点击此处' :
               'The official currency of the site is UAE Dirham, click here to change'}
         </p>
         <a
-          style={{ background: "none"}}
+          style={{ background: "none" }}
           href="https://www.xe.com/currencyconverter/"
           target="_blank"
           rel="noopener noreferrer"
@@ -134,20 +134,21 @@ function AppContent() {
   useEffect(() => {
     const handleResize = () => {
       setIsMobile(window.innerWidth < 768);
-      if (window.innerWidth >= 768) setSidebarOpen(true);
+      // ❌ متخليش السايدر يفتح تلقائيًا
     };
     window.addEventListener('resize', handleResize);
     handleResize();
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+
   return (
     <div className="app">
       {location.pathname !== '/login' && (
         <>
-          {isMobile && (
-            <button className="menu-btn" onClick={toggleSidebar}>☰</button>
-          )}
+
+          <button className="menu-btn" onClick={toggleSidebar}>☰</button>
+
           <Sidebar isOpen={sidebarOpen} toggleSidebar={toggleSidebar} />
         </>
       )}
