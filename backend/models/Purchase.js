@@ -8,18 +8,22 @@ const purchaseSchema = new mongoose.Schema({
   supplier: { type: String, required: true },
   quantity: { type: Number, required: true },
   price: { type: Number, required: true },
+
+  // ✅ الحقول الجديدة
+  shippingCost: { type: Number, default: 0 },   // سعر الشحن
+  customsFee: { type: Number, default: 0 },     // التخليص الجمركي
+
   total: { type: Number, required: true },
   purchaseDate: { type: Date, default: Date.now },
   notes: String,
 
-  // الحقول الجديدة الاختيارية
+  // الحقول الاختيارية
   model: String,
   manufactureYear: Number,
   color: String,
   chassisNumber: String,
-  condition: { type: String, enum: ['new', 'used'] } // الحالة جديدة أو مستعمل
+  condition: { type: String, enum: ['new', 'used'] }
 }, { timestamps: true });
-
 
 purchaseSchema.set('toJSON', {
   virtuals: true,
