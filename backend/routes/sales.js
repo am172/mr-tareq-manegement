@@ -39,8 +39,8 @@ router.post('/', auth, async (req, res) => {
       return res.status(400).json({ message: 'جميع الحقول مطلوبة' });
     }
 
-    const item = await Purchase.findOne({ 
-      productName: { $regex: new RegExp(productName, 'i') } 
+    const item = await Purchase.findOne({
+      productName: { $regex: new RegExp(productName, 'i') }
     });
 
     if (!item) return res.status(404).json({ message: 'المنتج غير موجود في المخزن' });
@@ -61,9 +61,17 @@ router.post('/', auth, async (req, res) => {
     const subtotal = priceNum * quantityNum;
     const total = subtotal * (1 - discountPercent / 100);
 
-    // إنشاء عملية البيع
+    // ✅ إنشاء عملية البيع
     const sale = new Sale({
+      serialNumber: item.serialNumber,
       productName: item.productName,
+      type: item.type,
+      supplier: item.supplier,
+      model: item.model,
+      manufactureYear: item.manufactureYear,
+      color: item.color,
+      chassisNumber: item.chassisNumber,
+      condition: item.condition,
       price: priceNum,
       buyer,
       quantity: quantityNum,
@@ -71,6 +79,7 @@ router.post('/', auth, async (req, res) => {
       total,
       date: new Date()
     });
+
 
     await sale.save();
 
