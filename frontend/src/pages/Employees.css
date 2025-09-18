@@ -2,7 +2,7 @@
    🌐 الصفحة الرئيسية - الموظفين
 ======================= */
 .page {
-  max-width: 1100px;
+  /* max-width: 1100px; */
   margin-left: auto;
   padding: 20px;
   font-family: "Tahoma", sans-serif;
