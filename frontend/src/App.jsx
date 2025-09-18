@@ -8,6 +8,7 @@ import Purchases from './pages/Purchases';
 import Sales from './pages/Sales';
 import Expenses from './pages/Expenses';
 import Reports from './pages/Reports';
+import SupplierDetails from './pages/Suppliers';
 import Employees from './pages/Employees';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { LanguageProvider, useLanguage } from './context/LanguageContext';
@@ -154,6 +155,7 @@ function AppContent() {
       <div className="content">
         <Routes>
           <Route path="/login" element={<Login />} />
+          <Route path="/suppliers" element={<SupplierDetails />} />
 
           <Route
             path="/inventory"
