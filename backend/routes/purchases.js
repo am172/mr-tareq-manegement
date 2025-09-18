@@ -36,14 +36,14 @@ router.get('/', auth, async (req, res) => {
   }
 });
 
+// router/purchases
 router.post('/', auth, async (req, res) => {
   try {
-    let { serialNumber, productName, type, supplier, quantity, price, notes } = req.body;
+    let { serialNumber, productName, type, supplier, quantity, price, notes, model, manufactureYear, color, chassisNumber, condition } = req.body;
 
     type = type === 'spare_part' ? 'part' : type;
     const total = quantity * price;
 
-    // لو الرقم التسلسلي مش مبعوت من الفورم نولده تلقائيًا
     if (!serialNumber) {
       serialNumber = `${Date.now()}-${Math.floor(Math.random() * 1000)}`;
     }
@@ -56,7 +56,12 @@ router.post('/', auth, async (req, res) => {
       quantity,
       price,
       total,
-      notes
+      notes,
+      model,
+      manufactureYear,
+      color,
+      chassisNumber,
+      condition
     });
 
     await purchase.save();
@@ -66,6 +71,7 @@ router.post('/', auth, async (req, res) => {
     res.status(400).json({ error: 'Error creating purchase', details: error.message });
   }
 });
+
 
 
 // ✅ تقرير المشتريات
@@ -95,26 +101,18 @@ router.get('/report', auth, async (req, res) => {
   }
 });
 
-// ✅ تعديل مشتري
 router.put('/:id', auth, async (req, res) => {
   try {
     const { id } = req.params;
     const update = req.body;
-    
-    // إذا كانت هناك كمية وسعر، احسب الإجمالي
+
     if (update.quantity !== undefined && update.price !== undefined) {
       update.total = update.quantity * update.price;
     }
-    
-    const updated = await Purchase.findByIdAndUpdate(id, update, { 
-      new: true, 
-      runValidators: true 
-    });
-    
-    if (!updated) {
-      return res.status(404).json({ message: 'لم يتم العثور على المشتري' });
-    }
-    
+
+    const updated = await Purchase.findByIdAndUpdate(id, update, { new: true, runValidators: true });
+    if (!updated) return res.status(404).json({ message: 'لم يتم العثور على المشتري' });
+
     res.json(updated);
   } catch (err) {
     console.error(err);
