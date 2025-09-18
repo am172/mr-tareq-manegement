@@ -5,7 +5,6 @@ import { FaPrint, FaWhatsapp, FaEdit, FaTrash } from 'react-icons/fa';
 import './Purchases.css';
 import { useLanguage } from '../context/LanguageContext';
 
-
 const translations = {
     ar: {
         title: 'المشتريات',
@@ -22,6 +21,8 @@ const translations = {
         supplier: 'المورد',
         quantity: 'الكمية',
         price: 'السعر',
+        shippingCost: 'سعر الشحن',
+        customsFee: 'التخليص الجمركي',
         total: 'الإجمالي',
         date: 'التاريخ',
         actions: 'أوامر',
@@ -53,6 +54,8 @@ const translations = {
         supplier: 'Supplier',
         quantity: 'Quantity',
         price: 'Price',
+        shippingCost: 'Shipping Cost',
+        customsFee: 'Customs Clearance',
         total: 'Total',
         date: 'Date',
         actions: 'Actions',
@@ -84,6 +87,8 @@ const translations = {
         supplier: '供应商',
         quantity: '数量',
         price: '价格',
+        shippingCost: '运费',
+        customsFee: '清关费用',
         total: '总计',
         date: '日期',
         actions: '操作',
@@ -144,14 +149,9 @@ const Purchases = () => {
     };
 
     const handleDelete = async (purchase) => {
-        // التنبيه الأول
         if (!window.confirm(`هل أنت متأكد أنك تريد حذف عملية الشراء الخاصة بـ "${purchase.productName}"؟`))
             return;
-
-        // فرق زمني 500ms
         await new Promise(resolve => setTimeout(resolve, 400));
-
-        // التنبيه الثاني
         if (!window.confirm(`هذه عملية حذف نهائية! هل تريد المتابعة لحذف "${purchase.productName}"؟`))
             return;
 
@@ -165,9 +165,7 @@ const Purchases = () => {
         }
     };
 
-
     const handleEdit = (purchase) => {
-        // التأكيد قبل التعديل
         if (!window.confirm(`هل أنت متأكد أنك تريد تعديل عملية الشراء الخاصة بـ "${purchase.productName}"؟`))
             return;
 
@@ -175,7 +173,6 @@ const Purchases = () => {
         setShowForm(true);
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
-
 
     const printInvoice = (purchase) => {
         const html = invoiceHtml(purchase, t);
@@ -211,18 +208,15 @@ const Purchases = () => {
     const formatDate = (d) => d ? new Date(d).toLocaleDateString('en-GB') : '';
     const formatMoney = (num) => Number(num || 0).toLocaleString('en-US', { maximumFractionDigits: 2 });
 
+    // ✅ دالة لحساب الإجمالي الظاهر
+    const calcDisplayTotal = (p) => {
+        return (p.price * p.quantity) + (p.shippingCost || 0) + (p.customsFee || 0);
+    };
+
     return (
         <div className="purchases-page">
             <header className="purchases-header">
                 <h1>{t.title}</h1>
-                {/* <div className="language-select">
-                    <label>Language: </label>
-                    <select value={language} onChange={(e) => setLanguage(e.target.value)}>
-                        <option value="ar">العربية</option>
-                        <option value="en">English</option>
-                        <option value="zh">中文</option>
-                    </select>
-                </div> */}
                 <div className="header-actions">
                     <div className="filter-wrap">
                         <label className="filter-label">{t.filterPeriod}</label>
@@ -265,6 +259,8 @@ const Purchases = () => {
                             <th>{t.condition}</th>
                             <th>{t.quantity}</th>
                             <th>{t.price}</th>
+                            <th>{t.shippingCost}</th>
+                            <th>{t.customsFee}</th>
                             <th>{t.total}</th>
                             <th>{t.date}</th>
                             <th>{t.actions}</th>
@@ -282,9 +278,11 @@ const Purchases = () => {
                                 <td>{p.color || '---'}</td>
                                 <td>{p.chassisNumber || '---'}</td>
                                 <td>{p.condition ? (p.condition === 'new' ? t.conditionNew : t.conditionUsed) : t.conditionEmpty}</td>
-                                <td>{p.price ? Math.round(p.total / p.price) : 0}</td>
+                                <td>{p.quantity || 0}</td>
                                 <td>{formatMoney(p.price)}</td>
-                                <td>{formatMoney(p.total)}</td>
+                                <td>{formatMoney(p.shippingCost || 0)}</td>
+                                <td>{formatMoney(p.customsFee || 0)}</td>
+                                <td>{formatMoney(calcDisplayTotal(p))}</td>
                                 <td>{p.purchaseDate ? formatDate(p.purchaseDate) : '---'}</td>
                                 <td className="actions-cell">
                                     <button title={t.invoice} className="icon-btn" onClick={() => printInvoice(p)}><FaPrint /></button>
@@ -304,7 +302,7 @@ const Purchases = () => {
 // ======= دوال الطباعة والواتساب مع دعم اللغة =======
 function invoiceHtml(p, t) {
     const date = p.purchaseDate ? new Date(p.purchaseDate).toLocaleString('en-GB') : '---';
-    const quantity = p.price ? Math.round(p.total / p.price) : 0;
+    const totalDisplay = (p.price * p.quantity) + (p.shippingCost || 0) + (p.customsFee || 0);
     return `
   <html>
     <head>
@@ -328,9 +326,11 @@ function invoiceHtml(p, t) {
         <tr><th>${t.color}</th><td>${escapeHtml(p.color || '')}</td></tr>
         <tr><th>${t.chassisNumber}</th><td>${escapeHtml(p.chassisNumber || '')}</td></tr>
         <tr><th>${t.condition}</th><td>${p.condition ? (p.condition === 'new' ? t.conditionNew : t.conditionUsed) : t.conditionEmpty}</td></tr>
-        <tr><th>${t.quantity}</th><td>${quantity}</td></tr>
+        <tr><th>${t.quantity}</th><td>${p.quantity || 0}</td></tr>
         <tr><th>${t.price}</th><td>${p.price}</td></tr>
-        <tr><th>${t.total}</th><td>${p.total}</td></tr>
+        <tr><th>${t.shippingCost}</th><td>${p.shippingCost || 0}</td></tr>
+        <tr><th>${t.customsFee}</th><td>${p.customsFee || 0}</td></tr>
+        <tr><th>${t.total}</th><td>${totalDisplay}</td></tr>
         <tr><th>${t.date}</th><td>${date}</td></tr>
       </table>
     </body>
@@ -338,10 +338,9 @@ function invoiceHtml(p, t) {
   `;
 }
 
-
 function reportHtml(purchases, t) {
     const rows = purchases.map(p => {
-        const quantity = p.price ? Math.round(p.total / p.price) : 0;
+        const totalDisplay = (p.price * p.quantity) + (p.shippingCost || 0) + (p.customsFee || 0);
         return `
     <tr>
       <td>${escapeHtml(p.serialNumber || '')}</td>
@@ -353,9 +352,11 @@ function reportHtml(purchases, t) {
       <td>${escapeHtml(p.color || '')}</td>
       <td>${escapeHtml(p.chassisNumber || '')}</td>
       <td>${p.condition ? (p.condition === 'new' ? t.conditionNew : t.conditionUsed) : t.conditionEmpty}</td>
-      <td>${quantity}</td>
+      <td>${p.quantity || 0}</td>
       <td>${p.price}</td>
-      <td>${p.total}</td>
+      <td>${p.shippingCost || 0}</td>
+      <td>${p.customsFee || 0}</td>
+      <td>${totalDisplay}</td>
       <td>${p.purchaseDate ? new Date(p.purchaseDate).toLocaleDateString('en-GB') : ''}</td>
     </tr>`;
     }).join('');
@@ -387,6 +388,8 @@ function reportHtml(purchases, t) {
             <th>${t.condition}</th>
             <th>${t.quantity}</th>
             <th>${t.price}</th>
+            <th>${t.shippingCost}</th>
+            <th>${t.customsFee}</th>
             <th>${t.total}</th>
             <th>${t.date}</th>
           </tr>
@@ -398,7 +401,6 @@ function reportHtml(purchases, t) {
   `;
 }
 
-
 function escapeHtml(str = '') {
     return String(str)
         .replace(/&/g, '&amp;')
@@ -408,8 +410,8 @@ function escapeHtml(str = '') {
 }
 
 function makeWhatsappMessage(p, t) {
-    const quantity = p.price ? Math.round(p.total / p.price) : 0;
-    return `${t.invoice}\n${t.product}: ${p.productName}\n${t.type}: ${p.type === 'car' ? t.itemCar : t.itemPart}\n${t.supplier}: ${p.supplier}\n${t.quantity}: ${quantity}\n${t.price}: ${p.price}\n${t.total}: ${p.total}\n${t.date}: ${p.purchaseDate ? new Date(p.purchaseDate).toLocaleDateString('en-GB') : ''}`;
+    const totalDisplay = (p.price * p.quantity) + (p.shippingCost || 0) + (p.customsFee || 0);
+    return `${t.invoice}\n${t.product}: ${p.productName}\n${t.type}: ${p.type === 'car' ? t.itemCar : t.itemPart}\n${t.supplier}: ${p.supplier}\n${t.quantity}: ${p.quantity}\n${t.price}: ${p.price}\n${t.shippingCost}: ${p.shippingCost || 0}\n${t.customsFee}: ${p.customsFee || 0}\n${t.total}: ${totalDisplay}\n${t.date}: ${p.purchaseDate ? new Date(p.purchaseDate).toLocaleDateString('en-GB') : ''}`;
 }
 
 export default Purchases;
