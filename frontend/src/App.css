@@ -44,7 +44,7 @@ tr:hover {
 
 /* تنسيق عام للأزرار */
 button {
-  padding: 10px 20px;
+  padding: 10px 10px;
   border: none;
   border-radius: 4px;
   cursor: pointer;
@@ -107,8 +107,9 @@ select, input {
 }
 
 h1 {
-  margin-bottom: 20px;
-  color: #333;
+      margin-bottom: 43px;
+    color: #333;
+    text-align: center;
 }
 .app {
   display: flex;
@@ -123,10 +124,15 @@ h1 {
   height: 100vh;
   position: fixed;
   top: 0;
-  right: 0; /* بدل left */
-  transition: transform 0.3s ease;
-  direction: rtl; /* اتجاه النصوص عربي */
-  padding:5px 0;
+  right: -250px; /* إخفاء السايدر خارج الشاشة */
+  transition: right 0.3s ease; /* تغيير التحويل ليتناسب مع right */
+  direction: rtl;
+  padding: 5px 0;
+  z-index: 998;
+}
+
+.sidebar.open {
+  right: 0; /* إظهار السايدر عند الفتح */
 }
 
 .sidebar ul {
@@ -226,9 +232,10 @@ h1 {
 }
 
 .content {
-  margin-right: 250px; 
+  /* margin-right: 250px;  */
   padding: 20px;
   width: 100%;
+      margin-bottom: 70px;
 }
 
 @media (max-width: 767px) {
