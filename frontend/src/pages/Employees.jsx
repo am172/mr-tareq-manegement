@@ -243,8 +243,16 @@ const Employees = () => {
         setShowForm(true);
     };
 
-    const handleDelete = async (emp) => {
+   const handleDelete = async (emp) => {
+        // التنبيه الأول
         if (!window.confirm(`${t.confirmDelete} "${emp.realName}"؟`)) return;
+
+        // فرق زمني 500ms قبل التنبيه الثاني
+        await new Promise(resolve => setTimeout(resolve, 500));
+
+        // التنبيه الثاني
+        if (!window.confirm(`هذه عملية حذف نهائية لـ "${emp.realName}"! هل تريد المتابعة؟`)) return;
+
         try {
             await api.delete(`/api/employees/${emp._id}`);
             setEmployees(prev => prev.filter(e => e._id !== emp._id));
@@ -253,6 +261,7 @@ const Employees = () => {
             alert(err.response?.data?.message || t.error);
         }
     };
+
 
     const resetForm = () => {
         setForm(initialForm);
