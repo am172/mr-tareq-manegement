@@ -119,18 +119,34 @@ const Purchases = () => {
         }
     };
 
-    const handleDelete = async (purchase) => {
-        if (!window.confirm(`Delete purchase for "${purchase.productName}"?`)) return;
+  const handleDelete = async (purchase) => {
+        // التنبيه الأول
+        if (!window.confirm(`هل أنت متأكد أنك تريد حذف عملية الشراء الخاصة بـ "${purchase.productName}"؟`))
+            return;
+
+        // فرق زمني 500ms
+        await new Promise(resolve => setTimeout(resolve, 400));
+
+        // التنبيه الثاني
+        if (!window.confirm(`هذه عملية حذف نهائية! هل تريد المتابعة لحذف "${purchase.productName}"؟`))
+            return;
+
         try {
             await api.delete(`/api/purchases/${purchase.id}`);
             setPurchases(prev => prev.filter(p => p.id !== purchase.id));
+            alert(`تم حذف "${purchase.productName}" بنجاح`);
         } catch (error) {
             console.error(error);
-            alert('Failed to delete purchase');
+            alert('فشل الحذف، حاول مرة أخرى');
         }
     };
 
+
     const handleEdit = (purchase) => {
+        // التأكيد قبل التعديل
+        if (!window.confirm(`هل أنت متأكد أنك تريد تعديل عملية الشراء الخاصة بـ "${purchase.productName}"؟`))
+            return;
+
         setEditingPurchase(purchase);
         setShowForm(true);
         window.scrollTo({ top: 0, behavior: 'smooth' });
