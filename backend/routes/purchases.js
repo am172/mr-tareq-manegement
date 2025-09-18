@@ -39,10 +39,12 @@ router.get('/', auth, async (req, res) => {
 // router/purchases
 router.post('/', auth, async (req, res) => {
   try {
-    let { serialNumber, productName, type, supplier, quantity, price, notes, model, manufactureYear, color, chassisNumber, condition } = req.body;
+    let { serialNumber, productName, type, supplier, quantity, price, shippingCost, customsFee, notes, model, manufactureYear, color, chassisNumber, condition } = req.body;
 
     type = type === 'spare_part' ? 'part' : type;
-    const total = quantity * price;
+
+    // ✅ الحساب الجديد
+    const total = (quantity * price) + (shippingCost || 0) + (customsFee || 0);
 
     if (!serialNumber) {
       serialNumber = `${Date.now()}-${Math.floor(Math.random() * 1000)}`;
@@ -55,6 +57,8 @@ router.post('/', auth, async (req, res) => {
       supplier,
       quantity,
       price,
+      shippingCost,
+      customsFee,
       total,
       notes,
       model,
@@ -72,6 +76,25 @@ router.post('/', auth, async (req, res) => {
   }
 });
 
+// ✅ تحديث برضه لازم يحسب total
+router.put('/:id', auth, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const update = req.body;
+
+    if (update.quantity !== undefined && update.price !== undefined) {
+      update.total = (update.quantity * update.price) + (update.shippingCost || 0) + (update.customsFee || 0);
+    }
+
+    const updated = await Purchase.findByIdAndUpdate(id, update, { new: true, runValidators: true });
+    if (!updated) return res.status(404).json({ message: 'لم يتم العثور على المشتري' });
+
+    res.json(updated);
+  } catch (err) {
+    console.error(err);
+    res.status(400).json({ message: 'خطأ في التعديل', details: err.message });
+  }
+});
 
 
 // ✅ تقرير المشتريات
@@ -101,24 +124,7 @@ router.get('/report', auth, async (req, res) => {
   }
 });
 
-router.put('/:id', auth, async (req, res) => {
-  try {
-    const { id } = req.params;
-    const update = req.body;
 
-    if (update.quantity !== undefined && update.price !== undefined) {
-      update.total = update.quantity * update.price;
-    }
-
-    const updated = await Purchase.findByIdAndUpdate(id, update, { new: true, runValidators: true });
-    if (!updated) return res.status(404).json({ message: 'لم يتم العثور على المشتري' });
-
-    res.json(updated);
-  } catch (err) {
-    console.error(err);
-    res.status(400).json({ message: 'خطأ في التعديل', details: err.message });
-  }
-});
 
 // ✅ حذف مشتري
 router.delete('/:id', auth, async (req, res) => {
