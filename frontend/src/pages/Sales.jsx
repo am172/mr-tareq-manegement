@@ -87,8 +87,16 @@ const Sales = () => {
         }
     };
 
-    const handleDelete = async (id) => {
+     const handleDelete = async (id) => {
+        // التنبيه الأول
         if (!window.confirm(t.confirmDelete)) return;
+
+        // فرق زمني 500ms قبل التنبيه الثاني
+        await new Promise(resolve => setTimeout(resolve, 400));
+
+        // التنبيه الثاني
+        if (!window.confirm('هل أنت متأكد نهائيًا من حذف هذه العملية؟')) return;
+
         try {
             await api.delete(`/api/sales/${id}`);
             fetchSales();
