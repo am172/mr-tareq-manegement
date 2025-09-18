@@ -2,12 +2,14 @@ import React, { useState, useEffect } from 'react';
 import './Form.css';
 import { useLanguage } from '../context/LanguageContext';
 
-const translations = { 
-  ar: { 
+const translations = {
+  ar: {
     titleAdd: 'إضافة مشتري جديد',
     titleEdit: 'تعديل مشتري',
     serialNumber: 'الرقم التسلسلي',
     productName: 'المنتج',
+    shippingCost: 'سعر الشحن',
+    customsFee: 'التخليص الجمركي',
     type: 'النوع',
     typeCar: 'سيارة',
     typePart: 'قطعة غيار',
@@ -25,8 +27,8 @@ const translations = {
     submitAdd: 'إضافة',
     submitEdit: 'تحديث',
     cancel: 'إلغاء'
-  }, 
-  en: { 
+  },
+  en: {
     titleAdd: 'Add New Purchase',
     titleEdit: 'Edit Purchase',
     serialNumber: 'Serial Number',
@@ -35,6 +37,8 @@ const translations = {
     typeCar: 'Car',
     typePart: 'Part',
     supplier: 'Supplier',
+    shippingCost: 'Shipping Cost',
+    customsFee: 'Customs Clearance',
     quantity: 'Quantity',
     price: 'Price',
     model: 'Model',
@@ -48,8 +52,8 @@ const translations = {
     submitAdd: 'Add',
     submitEdit: 'Update',
     cancel: 'Cancel'
-  }, 
-  zh: { 
+  },
+  zh: {
     titleAdd: '添加新采购',
     titleEdit: '编辑采购',
     serialNumber: '序列号',
@@ -63,6 +67,8 @@ const translations = {
     model: '型号',
     manufactureYear: '生产年份',
     color: '颜色',
+    shippingCost: '运费',
+    customsFee: '清关费用',
     chassisNumber: '底盘号',
     condition: '状态',
     conditionSelect: '选择状态',
@@ -71,7 +77,7 @@ const translations = {
     submitAdd: '添加',
     submitEdit: '更新',
     cancel: '取消'
-  } 
+  }
 };
 
 const PurchaseForm = ({ initialData, onSubmit, onCancel }) => {
@@ -82,6 +88,8 @@ const PurchaseForm = ({ initialData, onSubmit, onCancel }) => {
     supplier: '',
     quantity: 1,
     price: 0,
+    shippingCost: 0,   // ✅ جديد
+    customsFee: 0,     // ✅ جديد
     model: '',
     manufactureYear: '',
     color: '',
@@ -161,6 +169,29 @@ const PurchaseForm = ({ initialData, onSubmit, onCancel }) => {
               <option value="used">{t.conditionUsed}</option>
             </select>
           </div>
+
+          <div className="form-group">
+            <label>{t.shippingCost}:</label>
+            <input
+              type="number"
+              name="shippingCost"
+              value={formData.shippingCost}
+              onChange={handleChange}
+              min="0" step="0.01"
+            />
+          </div>
+
+          <div className="form-group">
+            <label>{t.customsFee}:</label>
+            <input
+              type="number"
+              name="customsFee"
+              value={formData.customsFee}
+              onChange={handleChange}
+              min="0" step="0.01"
+            />
+          </div>
+
 
           <div className="form-buttons">
             <button type="submit">{initialData ? t.submitEdit : t.submitAdd}</button>
