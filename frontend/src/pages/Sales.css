@@ -5,6 +5,8 @@
   min-height: 100vh;
   box-sizing: border-box;
   font-family: 'Cairo', sans-serif;
+  max-width: 1200px;
+
   
 }
 
@@ -96,22 +98,22 @@
   box-shadow: 0 0 0 2px rgba(37,99,235,0.2);
 }
 
-/* 📊 الجدول مع scroll أفقي على الموبايل */
+/* الغلاف الخارجي للجدول */
 .table-wrapper {
-  width: 100%;
-  overflow-x: auto; /* يضيف شريط التمرير الأفقي عند الحاجة */
+  overflow-x:auto;
+  background: #fff;
+  border-radius:10px;
+  padding:6px;
+  border:1px solid #eef2f6;
 }
 
 /* الجدول نفسه */
 .sales-table {
-  width: 100%;
-  min-width: 800px; /* يضمن عرض الجدول بحيث يظهر scroll عند الحاجة */
-  border-collapse: collapse;
-  background: #fff;
-  border-radius: 10px;
-  overflow: hidden;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  width:100%;
+  border-collapse:collapse;
+  min-width: 860px;
 }
+
 
 /* التجاوب */
 @media (max-width: 768px){
@@ -133,7 +135,7 @@
   padding: 12px;
     text-align: center;
     border-bottom: 1px solid #e5e7eb;
-    border-right: .3px solid #16357955;
+    border: .3px solid #16357955;
 }
 
 .sales-table th {
