@@ -141,7 +141,6 @@ const Sales = () => {
     const printContent = `
       <html>
         <head>
-          <title>${t.invoice}</title>
           <style>
             body { font-family: Arial; direction: ${language === 'ar' ? 'rtl' : 'ltr'}; padding: 20px; line-height: 1.6; }
             h2, h3 { text-align: center; }
@@ -155,7 +154,7 @@ const Sales = () => {
         <body>
           <div class="header">
             <h2>WAZIR GLOBALX FZCO</h2>
-            <p>License No.: 6765 | Registration No.: 65609</p>
+            <p>License No.: 67652  | Registration No.: 65609</p>
             <p>Address 1: IFZA DIGITAL PARK – A2, Dubai Silicon Oasis, Dubai, UAE</p>
             <p>Address 2: Burjuman Business Tower, Khalid Bin Walid Road, Dubai, UAE, Unit No: BT09-967</p>
             <p>Phone/WhatsApp: +971581079794 | Website: www.wazirglobalx.com | Email: [To be added]</p>
@@ -188,27 +187,31 @@ const Sales = () => {
             <thead>
               <tr>
                 <th>رقم<br>No.</th>
+                <th>الرقم التسلسلي<br>serial number</th>
                 <th>النوع<br>Type</th>
                 <th>الموديل<br>Model</th>
                 <th>سنة الصنع<br>Year</th>
                 <th>اللون<br>Color</th>
                 <th>رقم الشاسيه<br>Chassis No.</th>
                 <th>الحالة<br>Condition</th>
+                <th>الكمية<br>quantity</th>
                 <th>السعر<br>Price</th>
-                <th>ملاحظات<br>Remarks</th>
+                <th>الاجمالي<br>Total</th>
               </tr>
             </thead>
             <tbody>
               <tr>
                 <td>1</td>
+                <td>${sale.serialNumber || ''}</td>
                 <td>${sale.productName}</td>
                 <td>${sale.model || ''}</td>
                 <td>${sale.manufactureYear || ''}</td>
                 <td>${sale.color || ''}</td>
                 <td>${sale.chassisNumber || ''}</td>
                 <td>${sale.condition === 'new' ? t.conditionNew : t.conditionUsed}</td>
+                <td>${sale.quantity || ''}</td>
+                <td>${sale.price || ''}</td>
                 <td>${sale.total}</td>
-                <td>${sale.remarks || ''}</td>
               </tr>
             </tbody>
           </table>
