@@ -56,69 +56,74 @@ const translations = {
 };
 
 const Inventory = () => {
-    const [inventory, setInventory] = useState([]);
-    const [filterType, setFilterType] = useState('all');
-    const [filterSupplier, setFilterSupplier] = useState('all');
-    const [searchText, setSearchText] = useState('');
-    const { language } = useLanguage();
-    const { api } = useAuth();
+  const [inventory, setInventory] = useState([]);
+  const [filterType, setFilterType] = useState('all');
+  const [filterSupplier, setFilterSupplier] = useState('all');
+  const [searchText, setSearchText] = useState('');
+  const { language } = useLanguage();
+  const { api } = useAuth();
 
-    const t = translations[language];
+  const t = translations[language];
 
-    useEffect(() => {
-        fetchInventory();
-    }, []);
+  useEffect(() => {
+    fetchInventory();
+  }, []);
 
-    const fetchInventory = async () => {
-        try {
-            const res = await api.get('/api/purchases');
-            setInventory(res.data);
-        } catch (err) {
-            console.error(err);
-            setInventory([]);
-        }
-    };
+  const fetchInventory = async () => {
+    try {
+      const res = await api.get('/api/purchases');
+      setInventory(res.data);
+    } catch (err) {
+      console.error(err);
+      setInventory([]);
+    }
+  };
 
-    const printItem = (item) => {
-        const html = invoiceHtml(item, t);
-        const w = window.open('', '_blank', 'width=900,height=800');
-        w.document.write(html);
-        w.document.close();
-        w.focus();
-        setTimeout(() => w.print(), 500);
-    };
+  const printItem = (item) => {
+    const html = invoiceHtml(item, t);
+    const w = window.open('', '_blank', 'width=900,height=800');
+    w.document.write(html);
+    w.document.close();
+    w.focus();
+    setTimeout(() => w.print(), 500);
+  };
 
-    const printReport = () => {
-        const html = reportHtml(inventory, t);
-        const w = window.open('', '_blank', 'width=1100,height=800');
-        w.document.write(html);
-        w.document.close();
-        w.focus();
-        setTimeout(() => w.print(), 500);
-    };
+  const printReport = () => {
+    const html = reportHtml(inventory, t);
+    const w = window.open('', '_blank', 'width=1100,height=800');
+    w.document.write(html);
+    w.document.close();
+    w.focus();
+    setTimeout(() => w.print(), 500);
+  };
 
-    const sendWhatsApp = (item) => {
-        const msg = encodeURIComponent(makeWhatsappMessage(item, t));
-        const url = `https://wa.me/?text=${msg}`;
-        window.open(url, '_blank');
-    };
+  const sendWhatsApp = (item) => {
+    const msg = encodeURIComponent(makeWhatsappMessage(item, t));
+    const url = `https://wa.me/?text=${msg}`;
+    window.open(url, '_blank');
+  };
 
-    const filteredInventory = inventory.filter(item => {
-        const matchesType = filterType === 'all' || item.type === filterType;
-        const matchesSupplier = filterSupplier === 'all' || item.supplier === filterSupplier;
-        const matchesSearch = item.productName.toLowerCase().includes(searchText.toLowerCase());
-        return matchesType && matchesSupplier && matchesSearch;
-    });
+  const filteredInventory = inventory.filter(item => {
+    const matchesType = filterType === 'all' || item.type === filterType;
+    const matchesSupplier = filterSupplier === 'all' || item.supplier === filterSupplier;
+    const matchesSearch = item.productName.toLowerCase().includes(searchText.toLowerCase());
+    return matchesType && matchesSupplier && matchesSearch;
+  });
 
-    const carsCount = inventory.filter(i => i.type === 'car').length;
-    const partsCount = inventory.filter(i => i.type === 'part').length;
-    const suppliers = [...new Set(inventory.map(i => i.supplier))];
+  const carsCount = inventory
+    .filter(i => i.type === 'car')
+    .reduce((total, item) => total + Number(item.quantity), 0);
 
-    return (
-        <div className="inventory-page">
-            <h1>{t.title}</h1>
+  const partsCount = inventory
+    .filter(i => i.type === 'part')
+    .reduce((total, item) => total + Number(item.quantity), 0);
+  const suppliers = [...new Set(inventory.map(i => i.supplier))];
 
-            {/* <div className="language-select">
+  return (
+    <div className="inventory-page">
+      <h1>{t.title}</h1>
+
+      {/* <div className="language-select">
                 <label>Language: </label>
                 <select value={language} onChange={(e) => setLanguage(e.target.value)}>
                     <option value="ar">العربية</option>
@@ -127,59 +132,67 @@ const Inventory = () => {
                 </select>
             </div> */}
 
-            <div className="inventory-cards">
-                <div className="card" onClick={() => setFilterType('car')}>
-                    <h2>{t.cars}</h2>
-                    <p>{carsCount} {t.item}</p>
-                </div>
-                <div className="card" onClick={() => setFilterType('part')}>
-                    <h2>{t.parts}</h2>
-                    <p>{partsCount} {t.item}</p>
-                </div>
-            </div>
-
-            <div className="filters">
-                <input
-                    type="text"
-                    placeholder={t.searchPlaceholder}
-                    value={searchText}
-                    onChange={(e) => setSearchText(e.target.value)}
-                />
-                <select value={filterType} onChange={(e) => setFilterType(e.target.value)}>
-                    <option value="all">{t.all}</option>
-                    <option value="car">{t.cars}</option>
-                    <option value="part">{t.parts}</option>
-                </select>
-
-                <select value={filterSupplier} onChange={(e) => setFilterSupplier(e.target.value)}>
-                    <option value="all">{t.allSuppliers}</option>
-                    {suppliers.map(s => <option key={s} value={s}>{s}</option>)}
-                </select>
-
-                <button className="btn-primary" onClick={printReport}>{t.printInventory}</button>
-            </div>
-
-            <div className="inventory-grid">
-                {filteredInventory.map(item => (
-                    <div key={item.id} className="inventory-item">
-                        <h3 className='ism'>{item.productName}</h3>
-                        <p className='p-inv'>{t.type}: {item.type === 'car' ? t.cars : t.parts}</p>
-                        <p className='p-inv'>{t.supplier}: {item.supplier}</p>
-                        <p className='p-inv'>{t.quantity}: {item.quantity}</p>
-                        <div className="item-actions">
-                            <button title={t.invoice} onClick={() => printItem(item)}><FaPrint /></button>
-                            <button title="WhatsApp" onClick={() => sendWhatsApp(item)}><FaWhatsapp /></button>
-                        </div>
-                    </div>
-                ))}
-            </div>
+      <div className="inventory-cards">
+        <div className="card" onClick={() => setFilterType('car')}>
+          <h2>{t.cars}</h2>
+          <p>{carsCount} {t.item}</p>
         </div>
-    );
+        <div className="card" onClick={() => setFilterType('part')}>
+          <h2>{t.parts}</h2>
+          <p>{partsCount} {t.item}</p>
+        </div>
+      </div>
+
+      <div className="filters">
+        <input
+          type="text"
+          placeholder={t.searchPlaceholder}
+          value={searchText}
+          onChange={(e) => setSearchText(e.target.value)}
+        />
+        <select value={filterType} onChange={(e) => setFilterType(e.target.value)}>
+          <option value="all">{t.all}</option>
+          <option value="car">{t.cars}</option>
+          <option value="part">{t.parts}</option>
+        </select>
+
+        <select value={filterSupplier} onChange={(e) => setFilterSupplier(e.target.value)}>
+          <option value="all">{t.allSuppliers}</option>
+          {suppliers.map(s => <option key={s} value={s}>{s}</option>)}
+        </select>
+
+        {/* زر تفاصيل الموردين */}
+        <button
+          className="btn-primary"
+          onClick={() => window.location.href = '/suppliers'}
+        >
+          {language === 'ar' ? 'تفاصيل الموردين' : language === 'en' ? 'Supplier Details' : '供应商详情'}
+        </button>
+
+        <button className="btn-primary" onClick={printReport}>{t.printInventory}</button>
+      </div>
+
+      <div className="inventory-grid">
+        {filteredInventory.map(item => (
+          <div key={item.id} className="inventory-item">
+            <h3 className='ism'>{item.productName}</h3>
+            <p className='p-inv'>{t.type}: {item.type === 'car' ? t.cars : t.parts}</p>
+            <p className='p-inv'>{t.supplier}: {item.supplier}</p>
+            <p className='p-inv'>{t.quantity}: {item.quantity}</p>
+            <div className="item-actions">
+              <button title={t.invoice} onClick={() => printItem(item)}><FaPrint /></button>
+              <button title="WhatsApp" onClick={() => sendWhatsApp(item)}><FaWhatsapp /></button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
 };
 
 // ======= دوال الطباعة والواتساب مع دعم اللغة =======
 function invoiceHtml(p, t) {
-    return `
+  return `
   <html>
     <head>
       <title>${t.invoice} - ${p.productName}</title>
@@ -205,7 +218,7 @@ function invoiceHtml(p, t) {
 }
 
 function reportHtml(items, t) {
-    const rows = items.map(p => `
+  const rows = items.map(p => `
     <tr>
       <td>${p.serialNumber}</td>
       <td>${p.productName}</td>
@@ -214,7 +227,7 @@ function reportHtml(items, t) {
       <td>${p.quantity}</td>
     </tr>
   `).join('');
-    return `
+  return `
   <html>
     <head>
       <title>${t.report}</title>
@@ -245,7 +258,7 @@ function reportHtml(items, t) {
 }
 
 function makeWhatsappMessage(p, t) {
-    return `${t.invoice}\n${t.product}: ${p.productName}\n${t.type}: ${p.type === 'car' ? t.cars : t.parts}\n${t.supplier}: ${p.supplier}\n${t.quantity}: ${p.quantity}`;
+  return `${t.invoice}\n${t.product}: ${p.productName}\n${t.type}: ${p.type === 'car' ? t.cars : t.parts}\n${t.supplier}: ${p.supplier}\n${t.quantity}: ${p.quantity}`;
 }
 
 export default Inventory;
