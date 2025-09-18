@@ -126,14 +126,27 @@ const SalesForm = ({ onClose, existingSale }) => {
       return alert('الكمية المطلوبة أكبر من المتاحة');
     }
 
-    // ✅ تحقق إن السعر المدخل مش أقل من سعر الشراء (selectedProduct.price)
-    // ✅ تحقق إن السعر المدخل مش أقل من سعر الشراء (selectedProduct.price)
-if (selectedProduct && parseFloat(form.price) < selectedProduct.price) {
-  const confirmProceed = window.confirm('⚠️ السعر المدخل أقل من سعر الشراء للمنتج، هل أنت متأكد من العملية؟');
-  if (!confirmProceed) {
-    return; // ❌ وقف العملية لو المستخدم رفض
-  }
-}
+    // ✅ حساب التكلفة الحقيقية للوحدة
+    if (selectedProduct) {
+      const basePrice = Number(selectedProduct.price) || 0;
+      const shippingCost = Number(selectedProduct.shippingCost) || 0;
+      const customsFee = Number(selectedProduct.customsFee) || 0;
+      const qty = Number(selectedProduct.quantity) || 1; // 👈 تجنب القسمة على صفر
+
+      const perUnitExtra = (shippingCost + customsFee) / qty;
+      const actualPurchaseCost = basePrice + perUnitExtra;
+
+      const salePrice = Number(form.price) || 0;
+
+      if (salePrice < actualPurchaseCost) {
+        const confirmProceed = window.confirm(
+          `⚠️ السعر المدخل (${salePrice}) أقل من تكلفة الشراء الكاملة (${actualPurchaseCost.toFixed(2)}) للوحدة.\nهل تريد المتابعة؟`
+        );
+        if (!confirmProceed) {
+          return;
+        }
+      }
+    }
 
 
     try {
