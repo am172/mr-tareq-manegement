@@ -81,15 +81,23 @@ const Expenses = () => {
         }
     };
 
-    const handleDelete = async (id) => {
-        if (!window.confirm(t.confirmDelete)) return;
-        try {
-            await api.delete(`/api/expenses/${id}`);
-            fetchExpenses();
-        } catch (err) {
-            console.error(err);
-        }
-    };
+      const handleDelete = async (id) => {
+    // التنبيه الأول
+    if (!window.confirm(t.confirmDelete)) return;
+
+    // فرق زمني 500ms قبل التنبيه الثاني
+    await new Promise(resolve => setTimeout(resolve, 400));
+
+    // التنبيه الثاني
+    if (!window.confirm('هل أنت متأكد نهائيًا من حذف هذه المصروفية؟')) return;
+
+    try {
+        await api.delete(`/api/expenses/${id}`);
+        fetchExpenses();
+    } catch (err) {
+        console.error(err);
+    }
+};
 
     const handlePrintInvoice = (expense) => {
         const printContent = `
