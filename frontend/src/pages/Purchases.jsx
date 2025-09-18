@@ -7,75 +7,99 @@ import { useLanguage } from '../context/LanguageContext';
 
 
 const translations = {
-  ar: {
-    title: 'المشتريات',
-    filterPeriod: 'الفترة:',
-    all: 'الكل',
-    daily: 'يومي',
-    weekly: 'أسبوعي',
-    monthly: 'شهري',
-    addPurchase: 'إضافة مشتري',
-    printReport: 'طباعة تقرير كامل',
-    serial: 'الرقم التسلسلي',
-    product: 'المنتج',
-    type: 'النوع',
-    supplier: 'المورد',
-    quantity: 'الكمية',
-    price: 'السعر',
-    total: 'الإجمالي',
-    date: 'التاريخ',
-    actions: 'أوامر',
-    itemCar: 'سيارة',
-    itemPart: 'قطعة غيار',
-    noPurchases: 'لا توجد مشتريات',
-    invoice: 'فاتورة شراء'
-  },
-  en: {
-    title: 'Purchases',
-    filterPeriod: 'Period:',
-    all: 'All',
-    daily: 'Daily',
-    weekly: 'Weekly',
-    monthly: 'Monthly',
-    addPurchase: 'Add Purchase',
-    printReport: 'Print Full Report',
-    serial: 'Serial Number',
-    product: 'Product',
-    type: 'Type',
-    supplier: 'Supplier',
-    quantity: 'Quantity',
-    price: 'Price',
-    total: 'Total',
-    date: 'Date',
-    actions: 'Actions',
-    itemCar: 'Car',
-    itemPart: 'Part',
-    noPurchases: 'No purchases',
-    invoice: 'Purchase Invoice'
-  },
-  zh: {
-    title: '采购',
-    filterPeriod: '期间:',
-    all: '全部',
-    daily: '每日',
-    weekly: '每周',
-    monthly: '每月',
-    addPurchase: '添加采购',
-    printReport: '打印完整报告',
-    serial: '序列号',
-    product: '产品',
-    type: '类型',
-    supplier: '供应商',
-    quantity: '数量',
-    price: '价格',
-    total: '总计',
-    date: '日期',
-    actions: '操作',
-    itemCar: '汽车',
-    itemPart: '零件',
-    noPurchases: '暂无采购记录',
-    invoice: '采购发票'
-  }
+    ar: {
+        title: 'المشتريات',
+        filterPeriod: 'الفترة:',
+        all: 'الكل',
+        daily: 'يومي',
+        weekly: 'أسبوعي',
+        monthly: 'شهري',
+        addPurchase: 'إضافة مشتري',
+        printReport: 'طباعة تقرير كامل',
+        serial: 'الرقم التسلسلي',
+        product: 'المنتج',
+        type: 'النوع',
+        supplier: 'المورد',
+        quantity: 'الكمية',
+        price: 'السعر',
+        total: 'الإجمالي',
+        date: 'التاريخ',
+        actions: 'أوامر',
+        itemCar: 'سيارة',
+        itemPart: 'قطعة غيار',
+        noPurchases: 'لا توجد مشتريات',
+        invoice: 'فاتورة شراء',
+        model: 'موديل',
+        manufactureYear: 'سنة الصنع',
+        color: 'اللون',
+        chassisNumber: 'رقم الشاسيه',
+        condition: 'الحالة',
+        conditionNew: 'جديد',
+        conditionUsed: 'مستعمل',
+        conditionEmpty: '---',
+    },
+    en: {
+        title: 'Purchases',
+        filterPeriod: 'Period:',
+        all: 'All',
+        daily: 'Daily',
+        weekly: 'Weekly',
+        monthly: 'Monthly',
+        addPurchase: 'Add Purchase',
+        printReport: 'Print Full Report',
+        serial: 'Serial Number',
+        product: 'Product',
+        type: 'Type',
+        supplier: 'Supplier',
+        quantity: 'Quantity',
+        price: 'Price',
+        total: 'Total',
+        date: 'Date',
+        actions: 'Actions',
+        itemCar: 'Car',
+        itemPart: 'Part',
+        noPurchases: 'No purchases',
+        invoice: 'Purchase Invoice',
+        model: 'Model',
+        manufactureYear: 'Manufacture Year',
+        color: 'Color',
+        chassisNumber: 'Chassis Number',
+        condition: 'Condition',
+        conditionNew: 'New',
+        conditionUsed: 'Used',
+        conditionEmpty: '---',
+    },
+    zh: {
+        title: '采购',
+        filterPeriod: '期间:',
+        all: '全部',
+        daily: '每日',
+        weekly: '每周',
+        monthly: '每月',
+        addPurchase: '添加采购',
+        printReport: '打印完整报告',
+        serial: '序列号',
+        product: '产品',
+        type: '类型',
+        supplier: '供应商',
+        quantity: '数量',
+        price: '价格',
+        total: '总计',
+        date: '日期',
+        actions: '操作',
+        itemCar: '汽车',
+        itemPart: '零件',
+        noPurchases: '暂无采购记录',
+        invoice: '采购发票',
+        model: '型号',
+        manufactureYear: '生产年份',
+        color: '颜色',
+        chassisNumber: '底盘号',
+        condition: '状态',
+        conditionNew: '新的',
+        conditionUsed: '二手',
+        conditionEmpty: '---'
+    }
 };
 
 const Purchases = () => {
@@ -119,7 +143,7 @@ const Purchases = () => {
         }
     };
 
-  const handleDelete = async (purchase) => {
+    const handleDelete = async (purchase) => {
         // التنبيه الأول
         if (!window.confirm(`هل أنت متأكد أنك تريد حذف عملية الشراء الخاصة بـ "${purchase.productName}"؟`))
             return;
@@ -151,6 +175,7 @@ const Purchases = () => {
         setShowForm(true);
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
+
 
     const printInvoice = (purchase) => {
         const html = invoiceHtml(purchase, t);
@@ -233,6 +258,11 @@ const Purchases = () => {
                             <th>{t.product}</th>
                             <th>{t.type}</th>
                             <th>{t.supplier}</th>
+                            <th>{t.model}</th>
+                            <th>{t.manufactureYear}</th>
+                            <th>{t.color}</th>
+                            <th>{t.chassisNumber}</th>
+                            <th>{t.condition}</th>
                             <th>{t.quantity}</th>
                             <th>{t.price}</th>
                             <th>{t.total}</th>
@@ -241,28 +271,29 @@ const Purchases = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {purchases.length > 0 ? (
-                            purchases.map(p => (
-                                <tr key={p.id || p._id}>
-                                    <td>{p.serialNumber || '---'}</td>
-                                    <td className="col-product">{p.productName || '---'}</td>
-                                    <td>{p.type === 'car' ? t.itemCar : t.itemPart}</td>
-                                    <td>{p.supplier || '---'}</td>
-                                    <td>{p.price ? Math.round(p.total / p.price) : 0}</td>
-                                    <td>{formatMoney(p.price)}</td>
-                                    <td>{formatMoney(p.total)}</td>
-                                    <td>{p.purchaseDate ? formatDate(p.purchaseDate) : '---'}</td>
-                                    <td className="actions-cell">
-                                        <button title={t.invoice} className="icon-btn" onClick={() => printInvoice(p)}><FaPrint /></button>
-                                        <button title="WhatsApp" className="icon-btn" onClick={() => sendWhatsApp(p)}><FaWhatsapp /></button>
-                                        <button title="Edit" className="icon-btn" onClick={() => handleEdit(p)}><FaEdit /></button>
-                                        <button title="Delete" className="icon-btn danger" onClick={() => handleDelete(p)}><FaTrash /></button>
-                                    </td>
-                                </tr>
-                            ))
-                        ) : (
-                            <tr><td colSpan="9" style={{ textAlign: 'center', padding: '24px' }}>{t.noPurchases}</td></tr>
-                        )}
+                        {purchases.map(p => (
+                            <tr key={p.id || p._id}>
+                                <td>{p.serialNumber || '---'}</td>
+                                <td>{p.productName || '---'}</td>
+                                <td>{p.type === 'car' ? t.itemCar : t.itemPart}</td>
+                                <td>{p.supplier || '---'}</td>
+                                <td>{p.model || '---'}</td>
+                                <td>{p.manufactureYear || '---'}</td>
+                                <td>{p.color || '---'}</td>
+                                <td>{p.chassisNumber || '---'}</td>
+                                <td>{p.condition ? (p.condition === 'new' ? t.conditionNew : t.conditionUsed) : t.conditionEmpty}</td>
+                                <td>{p.price ? Math.round(p.total / p.price) : 0}</td>
+                                <td>{formatMoney(p.price)}</td>
+                                <td>{formatMoney(p.total)}</td>
+                                <td>{p.purchaseDate ? formatDate(p.purchaseDate) : '---'}</td>
+                                <td className="actions-cell">
+                                    <button title={t.invoice} className="icon-btn" onClick={() => printInvoice(p)}><FaPrint /></button>
+                                    <button title="WhatsApp" className="icon-btn" onClick={() => sendWhatsApp(p)}><FaWhatsapp /></button>
+                                    <button title="Edit" className="icon-btn" onClick={() => handleEdit(p)}><FaEdit /></button>
+                                    <button title="Delete" className="icon-btn danger" onClick={() => handleDelete(p)}><FaTrash /></button>
+                                </td>
+                            </tr>
+                        ))}
                     </tbody>
                 </table>
             </div>
@@ -272,7 +303,7 @@ const Purchases = () => {
 
 // ======= دوال الطباعة والواتساب مع دعم اللغة =======
 function invoiceHtml(p, t) {
-    const date = new Date(p.purchaseDate).toLocaleString('en-GB');
+    const date = p.purchaseDate ? new Date(p.purchaseDate).toLocaleString('en-GB') : '---';
     const quantity = p.price ? Math.round(p.total / p.price) : 0;
     return `
   <html>
@@ -286,48 +317,74 @@ function invoiceHtml(p, t) {
       </style>
     </head>
     <body>
-      <h2>${t.invoice}</h2>
+      <h2 style="text-align:center">${t.invoice}</h2>
       <table>
+        <tr><th>${t.serial}</th><td>${escapeHtml(p.serialNumber || '')}</td></tr>
         <tr><th>${t.product}</th><td>${escapeHtml(p.productName)}</td></tr>
         <tr><th>${t.type}</th><td>${p.type === 'car' ? t.itemCar : t.itemPart}</td></tr>
-        <tr><th>${t.supplier}</th><td>${escapeHtml(p.supplier)}</td></tr>
+        <tr><th>${t.supplier}</th><td>${escapeHtml(p.supplier || '')}</td></tr>
+        <tr><th>${t.model}</th><td>${escapeHtml(p.model || '')}</td></tr>
+        <tr><th>${t.manufactureYear}</th><td>${p.manufactureYear || '---'}</td></tr>
+        <tr><th>${t.color}</th><td>${escapeHtml(p.color || '')}</td></tr>
+        <tr><th>${t.chassisNumber}</th><td>${escapeHtml(p.chassisNumber || '')}</td></tr>
+        <tr><th>${t.condition}</th><td>${p.condition ? (p.condition === 'new' ? t.conditionNew : t.conditionUsed) : t.conditionEmpty}</td></tr>
         <tr><th>${t.quantity}</th><td>${quantity}</td></tr>
         <tr><th>${t.price}</th><td>${p.price}</td></tr>
         <tr><th>${t.total}</th><td>${p.total}</td></tr>
+        <tr><th>${t.date}</th><td>${date}</td></tr>
       </table>
     </body>
   </html>
   `;
 }
 
+
 function reportHtml(purchases, t) {
     const rows = purchases.map(p => {
         const quantity = p.price ? Math.round(p.total / p.price) : 0;
         return `
     <tr>
-      <td>${escapeHtml(p.productName)}</td>
+      <td>${escapeHtml(p.serialNumber || '')}</td>
+      <td>${escapeHtml(p.productName || '')}</td>
       <td>${p.type === 'car' ? t.itemCar : t.itemPart}</td>
-      <td>${escapeHtml(p.supplier)}</td>
+      <td>${escapeHtml(p.supplier || '')}</td>
+      <td>${escapeHtml(p.model || '')}</td>
+      <td>${p.manufactureYear || '---'}</td>
+      <td>${escapeHtml(p.color || '')}</td>
+      <td>${escapeHtml(p.chassisNumber || '')}</td>
+      <td>${p.condition ? (p.condition === 'new' ? t.conditionNew : t.conditionUsed) : t.conditionEmpty}</td>
       <td>${quantity}</td>
       <td>${p.price}</td>
       <td>${p.total}</td>
       <td>${p.purchaseDate ? new Date(p.purchaseDate).toLocaleDateString('en-GB') : ''}</td>
     </tr>`;
     }).join('');
+
     return `
   <html>
     <head>
       <title>${t.title}</title>
-      <style>body{font-family:Arial;margin:20px}table{width:100%;border-collapse:collapse}th,td{border:1px solid #ddd;padding:8px}th{background:#f4f4f4}</style>
+      <style>
+        body{font-family:Arial;margin:20px;direction:rtl}
+        table{width:100%;border-collapse:collapse}
+        th,td{border:1px solid #ddd;padding:8px}
+        th{background:#f4f4f4}
+      </style>
     </head>
     <body>
-      <h1>${t.title}</h1>
+      <h1 style="text-align:center">${t.title}</h1>
       <table>
         <thead>
           <tr>
+            <th>${t.serial}</th>
             <th>${t.product}</th>
             <th>${t.type}</th>
             <th>${t.supplier}</th>
+            <th>${t.model}</th>
+            <th>${t.manufactureYear}</th>
+            <th>${t.color}</th>
+            <th>${t.chassisNumber}</th>
+            <th>${t.condition}</th>
             <th>${t.quantity}</th>
             <th>${t.price}</th>
             <th>${t.total}</th>
@@ -340,6 +397,7 @@ function reportHtml(purchases, t) {
   </html>
   `;
 }
+
 
 function escapeHtml(str = '') {
     return String(str)
