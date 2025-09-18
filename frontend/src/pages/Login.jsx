@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
+import { useLanguage } from '../context/LanguageContext';
 import './Login.css';
 
 const translations = {
@@ -40,7 +41,6 @@ const translations = {
 const Login = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [language, setLanguage] = useState('ar');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -48,6 +48,8 @@ const Login = () => {
   const { login, user } = useAuth();
   const navigate = useNavigate();
 
+  // ✅ استخدم اللغة من الـ context
+  const { language, setLanguage } = useLanguage();
   const t = translations[language];
 
   const handleSubmit = async (e) => {
