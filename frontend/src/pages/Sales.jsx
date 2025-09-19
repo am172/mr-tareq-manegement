@@ -161,7 +161,7 @@ const Sales = () => {
   }
   table.invoice-table th, table.invoice-table td { 
     border: 1px solid #000; 
-    padding: 6px; 
+    padding: 2px; 
     text-align: center; 
     word-wrap: break-word; 
   }
@@ -273,7 +273,7 @@ const Sales = () => {
   }
   table.invoice-table th, table.invoice-table td { 
     border: 1px solid #000; 
-    padding: 6px; 
+    font-size:14px;
     text-align: center; 
     word-wrap: break-word; 
   }
