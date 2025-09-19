@@ -139,20 +139,40 @@ const Sales = () => {
 
   const handlePrintInvoice = (sale) => {
     const printContent = `
-      <html>
-        <head>
-          <style>
-            body { font-family: Arial; direction: ${language === 'ar' ? 'rtl' : 'ltr'}; padding: 20px; line-height: 1.6; }
-            h2, h3 { text-align: center; }
-            table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-            th, td { border: 1px solid #000; padding: 6px; text-align: center; }
-            th { background: #eee; }
-            .header { text-align: center; margin-bottom: 20px; }
-            .signatures { margin-top: 40px; display: flex; justify-content: space-between; }
-          </style>
-        </head>
-        <body>
-          <div class="header">
+<!DOCTYPE html>
+<html lang="${language}">
+<head>
+<meta charset="UTF-8">
+<title>.</title>
+<style>
+  /* CSS مخصص لطباعة جدول الفاتورة فقط */
+  body.invoice-print { 
+    font-family: Arial; 
+    direction: ${language === 'ar' ? 'rtl' : 'ltr'}; 
+    padding: 20px; 
+    line-height: 1.6; 
+  }
+  h2, h3 { text-align: center; margin: 5px 0; }
+  table.invoice-table { 
+    width: 100%; 
+    border-collapse: collapse; 
+    margin-top: 20px; 
+    table-layout: fixed; 
+  }
+  table.invoice-table th, table.invoice-table td { 
+    border: 1px solid #000; 
+    padding: 6px; 
+    text-align: center; 
+    word-wrap: break-word; 
+  }
+  table.invoice-table th { background: #eee; }
+  tr { height: 28px; }
+  .header { text-align: center; margin-bottom: 20px; }
+  .signatures { margin-top: 40px; display: flex; justify-content: space-between; }
+</style>
+</head>
+        <body class="invoice-print">
+  <div class="header">
             <h2>WAZIR GLOBALX FZCO</h2>
             <p>License No.: 67652  | Registration No.: 65609</p>
             <p>Address 1: IFZA DIGITAL PARK – A2, Dubai Silicon Oasis, Dubai, UAE</p>
@@ -183,7 +203,7 @@ const Sales = () => {
           <p>7- يخضع هذا العقد لقوانين إمارة دبي ودولة الإمارات العربية المتحدة.<br>
           7- This agreement is governed by the laws of the Emirate of Dubai and the United Arab Emirates.</p>
           <h3>ملحق توصيف السيارات / Car Specification Annex</h3>
-          <table>
+  <table class="invoice-table">
             <thead>
               <tr>
                 <th>رقم<br>No.</th>
@@ -230,30 +250,52 @@ const Sales = () => {
   };
 
   const handlePrintReport = () => {
-    const table = document.querySelector('.sales-table').cloneNode(true);
-    Array.from(table.querySelectorAll('tr')).forEach(row => row.deleteCell(-1));
-    const printContent = `
-      <html>
-        <head>
-          <title>${t.title}</title>
-          <style>
-            body { font-family: Arial; direction: ${language === 'ar' ? 'rtl' : 'ltr'}; padding: 20px; }
-            table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-            th, td { border: 1px solid #000; padding: 8px; text-align: center; }
-            th { background: #eee; }
-          </style>
-        </head>
-        <body>
-          <h2 style="text-align:center;">${t.title}</h2>
-          ${table.outerHTML}
-        </body>
-      </html>
-    `;
-    const newWindow = window.open('', '', 'width=800,height=600');
-    newWindow.document.write(printContent);
-    newWindow.document.close();
-    newWindow.print();
-  };
+  const table = document.querySelector('.sales-table').cloneNode(true);
+  Array.from(table.querySelectorAll('tr')).forEach(row => row.deleteCell(-1)); // إزالة عمود العمليات
+  table.classList.add('invoice-table'); // إضافة CSS مخصص
+
+  const printContent = `
+<!DOCTYPE html>
+<html lang="${language}">
+<head>
+<meta charset="UTF-8">
+<title>${t.title}</title>
+<style>
+  body.report-print { 
+    font-family: Arial; 
+    direction: ${language === 'ar' ? 'rtl' : 'ltr'}; 
+    padding: 20px; 
+  }
+  table.invoice-table { 
+    width: 100%; 
+    border-collapse: collapse; 
+    table-layout: fixed; 
+  }
+  table.invoice-table th, table.invoice-table td { 
+    border: 1px solid #000; 
+    padding: 6px; 
+    text-align: center; 
+    word-wrap: break-word; 
+  }
+  table.invoice-table th { background: #eee; }
+  tr { height: 28px; }
+  h2 { text-align: center; margin-bottom: 10px; }
+</style>
+</head>
+<body class="report-print">
+  <h2>${t.title}</h2>
+  ${table.outerHTML}
+</body>
+</html>
+  `;
+
+  const newWindow = window.open('', '_blank');
+  newWindow.document.write(printContent);
+  newWindow.document.close();
+  newWindow.focus();
+  newWindow.print();
+};
+
 
   const handleWhatsApp = (sale) => {
     const message = `${t.invoice}:
