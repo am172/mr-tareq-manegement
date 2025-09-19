@@ -179,7 +179,7 @@ export default function Reports() {
             }
 
             const res = await axios.get("https://mr-tareq-manegement-backend.onrender.com/api/reports", { params });
-              setReport(res.data);
+               setReport(res.data);
         } catch (err) {
             console.error("Error fetching report:", err);
             setReport(null);
@@ -440,7 +440,7 @@ export default function Reports() {
 
 
                     {/* ✅ التفاصيل */}
-                    <h3 className="h3-details">{t.details} 👇</h3>
+                    {/* <h3 className="h3-details">{t.details} 👇</h3>
                     <div className="tables">
                         <h4 className="h4-details">{t.sales}</h4>
                         <table>
@@ -487,20 +487,25 @@ export default function Reports() {
                             </thead>
                             <tbody>
                                 {report.details.purchases.map((p) => {
-                                    // ✅ نحسب الكمية = الاجمالي ÷ السعر
-                                    const quantity = p.price ? (p.total / p.price) : 0;
+                                    // استخدم الكمية الحقيقية بدل حسابها
+                                    const quantity = p.quantity;
+
+                                    // ممكن تحسب الإجمالي مع الشحن والجمرك لو متاح
+                                    const total = p.price * quantity + (p.shipping || 0) + (p.customs || 0);
+
                                     return (
                                         <tr key={p._id}>
                                             <td>{p.productName}</td>
                                             <td>{p.supplier}</td>
-                                            <td>{Number(quantity.toFixed(2))}</td>
+                                            <td>{quantity}</td>
                                             <td>{p.price}</td>
-                                            <td>{p.total}</td>
+                                            <td>{total}</td>
                                             <td>{new Date(p.purchaseDate).toLocaleDateString()}</td>
                                         </tr>
                                     );
                                 })}
                             </tbody>
+
                         </table>
 
 
@@ -528,8 +533,8 @@ export default function Reports() {
                             </tbody>
                         </table>
 
-                        {/* ✅ جدول المخزن */}
-{/*                         {report.details.inventory && report.details.inventory.length > 0 && (
+
+                        {report.details.inventory && report.details.inventory.length > 0 && (
                             <>
                                 <h4 className="h4-details">{language === 'ar' ? 'المخزن' : language === 'en' ? 'Inventory' : '库存'}</h4>
                                 <table>
@@ -555,8 +560,9 @@ export default function Reports() {
                                     </tbody>
                                 </table>
                             </>
-                        )} */}
-                    </div>
+                        )}
+
+                    </div> */}
                 </div>
             )}
 
@@ -570,5 +576,3 @@ export default function Reports() {
         </div>
     );
 }
-
-           
