@@ -41,7 +41,17 @@ router.post('/', auth, async (req, res) => {
   try {
     let { serialNumber, productName, type, supplier, quantity, price, shippingCost, customsFee, notes, model, manufactureYear, color, chassisNumber, condition } = req.body;
 
+    // تحقق من الحقول المطلوبة
+    if (!serialNumber || !productName || !type || !supplier || !quantity || !price || !condition) {
+      return res.status(400).json({ error: "الحقول الأساسية مطلوبة: الرقم التسلسلي، المنتج، النوع، المورد، الكمية، السعر" });
+    }
+
     type = type === 'spare_part' ? 'part' : type;
+    // ✅ تحقق هل الرقم التسلسلي موجود بالفعل
+    const existingPurchase = await Purchase.findOne({ serialNumber });
+    if (existingPurchase) {
+      return res.status(400).json({ error: `❌ الرقم التسلسلي ${serialNumber} مستخدم بالفعل` });
+    }
 
     const total = (quantity * price) + (shippingCost || 0) + (customsFee || 0);
 
@@ -90,7 +100,13 @@ router.post('/', auth, async (req, res) => {
     res.status(201).json({ purchase, product });
   } catch (error) {
     console.error('Error creating purchase:', error);
-    res.status(400).json({ error: 'Error creating purchase', details: error.message });
+
+    // ✅ معالجة خطأ unique index (MongoDB code 11000)
+    if (error.code === 11000 && error.keyValue?.serialNumber) {
+      return res.status(400).json({ error: `❌ الرقم التسلسلي ${error.keyValue.serialNumber} مستخدم بالفعل` });
+    }
+
+    res.status(500).json({ error: 'حدث خطأ غير متوقع', details: error.message });
   }
 });
 
