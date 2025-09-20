@@ -13,6 +13,7 @@ import Employees from './pages/Employees';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { LanguageProvider, useLanguage } from './context/LanguageContext';
 import { testServerConnection } from './utils/testConnection';
+import { ToastContainer } from 'react-toastify';
 import './App.css';
 
 testServerConnection();
@@ -219,6 +220,7 @@ function App() {
       <LanguageProvider>
         <Router>
           <AppContent />
+          <ToastContainer position="top-right" autoClose={4000} />
         </Router>
       </LanguageProvider>
     </AuthProvider>
