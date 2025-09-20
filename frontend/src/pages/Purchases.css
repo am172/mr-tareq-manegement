@@ -182,6 +182,24 @@ body {
   .table-wrap{ padding:4px; }
   .purchases-table th, .purchases-table td{ padding:8px; font-size:0.9rem }
   .col-product{ max-width:160px; }
+  .header-actions {
+    display: grid;
+    grid-template-columns: repeat(2,1fr);
+  }
+  .filter-wrap {
+    display: flex;
+    gap: 0px;
+    align-items: center;
+    background: var(--card);
+    padding: 4px 0px;
+    border-radius: 8px;
+}
+.btn-group {
+  display: grid; 
+}
+.btn-primary{
+  width: 300px;
+}
 }
 
 @media (max-width: 520px){
