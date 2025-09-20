@@ -54,7 +54,7 @@ router.post('/', auth, async (req, res) => {
     const subtotal = price * quantity;
     const total = subtotal * (1 - (discount / 100));
 
-      // ✅ احسب آخر رقم فاتورة + 1
+    // ✅ احسب آخر رقم فاتورة + 1
     const lastSale = await Sale.findOne().sort({ invoiceNumber: -1 });
     const nextInvoiceNumber = lastSale ? lastSale.invoiceNumber + 1 : 1;
 
@@ -66,6 +66,11 @@ router.post('/', auth, async (req, res) => {
       productName: item.name,
       type: item.type,
       supplier: item.supplier,
+      model: item.model,
+      manufactureYear: item.manufactureYear,
+      color: item.color,
+      chassisNumber: item.chassisNumber,
+      condition: item.condition,
       price,
       buyer,
       quantity,
@@ -73,6 +78,7 @@ router.post('/', auth, async (req, res) => {
       total,
       date: new Date()
     });
+
 
     await sale.save();
 
