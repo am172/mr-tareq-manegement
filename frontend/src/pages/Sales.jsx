@@ -221,7 +221,7 @@ const Sales = () => {
             </thead>
             <tbody>
               <tr>
-                <td>1</td>
+                <td>${sale.invoiceNumber || ''}</td>
                 <td>${sale.serialNumber || ''}</td>
                 <td>${sale.productName}</td>
                 <td>${sale.model || ''}</td>
