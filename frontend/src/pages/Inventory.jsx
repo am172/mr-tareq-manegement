@@ -71,7 +71,7 @@ const Inventory = () => {
 
   const fetchInventory = async () => {
     try {
-      const res = await api.get('/api/purchases');
+      const res = await api.get('/api/products');
       setInventory(res.data);
     } catch (err) {
       console.error(err);
@@ -104,11 +104,13 @@ const Inventory = () => {
   };
 
   const filteredInventory = inventory.filter(item => {
+    const pname = (item.productName || item.name || "").toLowerCase();
     const matchesType = filterType === 'all' || item.type === filterType;
-    const matchesSupplier = filterSupplier === 'all' || item.supplier === filterSupplier;
-    const matchesSearch = item.productName.toLowerCase().includes(searchText.toLowerCase());
+    const matchesSupplier = filterSupplier === 'all' || (item.supplier || "") === filterSupplier;
+    const matchesSearch = pname.includes(searchText.toLowerCase());
     return matchesType && matchesSupplier && matchesSearch;
   });
+
 
   const carsCount = inventory
     .filter(i => i.type === 'car')
@@ -175,7 +177,7 @@ const Inventory = () => {
       <div className="inventory-grid">
         {filteredInventory.map(item => (
           <div key={item.id} className="inventory-item">
-            <h3 className='ism'>{item.productName}</h3>
+            <h3 className='ism'>{item.productName || item.name}</h3>
             <p className='p-inv'>{t.type}: {item.type === 'car' ? t.cars : t.parts}</p>
             <p className='p-inv'>{t.supplier}: {item.supplier}</p>
             <p className='p-inv'>{t.quantity}: {item.quantity}</p>
