@@ -21,6 +21,8 @@ app.get('/api/test', (req, res) => {
   res.json({ message: 'Server is working!', status: 'success' });
 });
 
+const supplierRoutes = require('./routes/suppliers');
+app.use('/api/suppliers', supplierRoutes);
 // Routes
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/products', require('./routes/products'));
