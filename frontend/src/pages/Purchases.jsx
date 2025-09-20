@@ -58,6 +58,7 @@ const translations = {
         allowPopups: '⚠️ من فضلك اسمح بالنوافذ المنبثقة',
         confirm: 'تأكيد',
         cancel: 'إلغاء',
+        invoiceNumber: 'رقم الفاتورة',
     },
     en: {
         title: 'Purchases',
@@ -97,6 +98,7 @@ const translations = {
         allTypes: "All",
         car: "Car",
         part: "Part",
+        invoiceNumber: 'Invoice Number',
 
         // Notifications
         addSuccess: '✅ Product added successfully',
@@ -160,6 +162,7 @@ const translations = {
         allowPopups: '⚠️ 请允许弹出窗口',
         confirm: '确认',
         cancel: '取消',
+        invoiceNumber: '发票号码',
     }
 };
 
@@ -426,9 +429,10 @@ const Purchases = () => {
 };
 
 // ======= دوال الطباعة والواتساب مع دعم اللغة =======
-function invoiceHtml(p, t) {
+function invoiceHtml(p, t, invoiceNumber = 1) {
     const date = p.purchaseDate ? new Date(p.purchaseDate).toLocaleString('en-GB') : '---';
     const totalDisplay = (p.price * p.quantity) + (p.shippingCost || 0) + (p.customsFee || 0);
+
     return `
   <html>
     <head>
@@ -443,6 +447,7 @@ function invoiceHtml(p, t) {
     <body>
       <h2 style="text-align:center">${t.invoice}</h2>
       <table>
+        <tr><th>${t.invoiceNumber}</th><td>${p.invoiceNumber}</td></tr>
         <tr><th>${t.serial}</th><td>${escapeHtml(p.serialNumber || '')}</td></tr>
         <tr><th>${t.product}</th><td>${escapeHtml(p.productName)}</td></tr>
         <tr><th>${t.type}</th><td>${p.type === 'car' ? t.itemCar : t.itemPart}</td></tr>
@@ -464,68 +469,71 @@ function invoiceHtml(p, t) {
   `;
 }
 
+
 function reportHtml(purchases, t) {
-    const rows = purchases.map(p => {
+    const rows = purchases.map((p) => {
         const totalDisplay = (p.price * p.quantity) + (p.shippingCost || 0) + (p.customsFee || 0);
+        
         return `
-    <tr>
-      <td>${escapeHtml(p.serialNumber || '')}</td>
-      <td>${escapeHtml(p.productName || '')}</td>
-      <td>${p.type === 'car' ? t.itemCar : t.itemPart}</td>
-      <td>${escapeHtml(p.supplier || '')}</td>
-      <td>${escapeHtml(p.model || '')}</td>
-      <td>${p.manufactureYear || '---'}</td>
-      <td>${escapeHtml(p.color || '')}</td>
-      <td>${escapeHtml(p.chassisNumber || '')}</td>
-      <td>${p.condition ? (p.condition === 'new' ? t.conditionNew : t.conditionUsed) : t.conditionEmpty}</td>
-      <td>${p.quantity || 0}</td>
-      <td>${p.price}</td>
-      <td>${p.shippingCost || 0}</td>
-      <td>${p.customsFee || 0}</td>
-      <td>${totalDisplay}</td>
-      <td>${p.purchaseDate ? new Date(p.purchaseDate).toLocaleDateString('en-GB') : ''}</td>
-    </tr>`;
+        <tr>
+          <td>${escapeHtml(p.serialNumber || '')}</td>
+          <td>${escapeHtml(p.productName || '')}</td>
+          <td>${p.type === 'car' ? t.itemCar : t.itemPart}</td>
+          <td>${escapeHtml(p.supplier || '')}</td>
+          <td>${escapeHtml(p.model || '')}</td>
+          <td>${p.manufactureYear || '---'}</td>
+          <td>${escapeHtml(p.color || '')}</td>
+          <td>${escapeHtml(p.chassisNumber || '')}</td>
+          <td>${p.condition ? (p.condition === 'new' ? t.conditionNew : t.conditionUsed) : t.conditionEmpty}</td>
+          <td>${p.quantity || 0}</td>
+          <td>${p.price}</td>
+          <td>${p.shippingCost || 0}</td>
+          <td>${p.customsFee || 0}</td>
+          <td>${totalDisplay}</td>
+          <td>${p.purchaseDate ? new Date(p.purchaseDate).toLocaleDateString('en-GB') : ''}</td>
+        </tr>`;
     }).join('');
 
     return `
-  <html>
-    <head>
-      <title>${t.title}</title>
-      <style>
-        body{font-family:Arial;margin:20px;direction:rtl}
-        table{width:100%;border-collapse:collapse}
-        th,td{border:1px solid #ddd;padding:8px}
-        th{background:#f4f4f4}
-      </style>
-    </head>
-    <body>
-      <h1 style="text-align:center">${t.title}</h1>
-      <table>
-        <thead>
-          <tr>
-            <th>${t.serial}</th>
-            <th>${t.product}</th>
-            <th>${t.type}</th>
-            <th>${t.supplier}</th>
-            <th>${t.model}</th>
-            <th>${t.manufactureYear}</th>
-            <th>${t.color}</th>
-            <th>${t.chassisNumber}</th>
-            <th>${t.condition}</th>
-            <th>${t.quantity}</th>
-            <th>${t.price}</th>
-            <th>${t.shippingCost}</th>
-            <th>${t.customsFee}</th>
-            <th>${t.total}</th>
-            <th>${t.date}</th>
-          </tr>
-        </thead>
-        <tbody>${rows}</tbody>
-      </table>
-    </body>
-  </html>
-  `;
+    <html>
+      <head>
+        <title>${t.title}</title>
+        <style>
+          body{font-family:Arial;margin:20px;direction:rtl}
+          table{width:100%;border-collapse:collapse}
+          th,td{border:1px solid #ddd;padding:8px}
+          th{background:#f4f4f4}
+        </style>
+      </head>
+      <body>
+        <h1 style="text-align:center">${t.title}</h1>
+        <table>
+          <thead>
+            <tr>
+              <th>${t.serial}</th>
+              <th>${t.product}</th>
+              <th>${t.type}</th>
+              <th>${t.supplier}</th>
+              <th>${t.model}</th>
+              <th>${t.manufactureYear}</th>
+              <th>${t.color}</th>
+              <th>${t.chassisNumber}</th>
+              <th>${t.condition}</th>
+              <th>${t.quantity}</th>
+              <th>${t.price}</th>
+              <th>${t.shippingCost}</th>
+              <th>${t.customsFee}</th>
+              <th>${t.total}</th>
+              <th>${t.date}</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </body>
+    </html>
+    `;
 }
+
 
 function escapeHtml(str = '') {
     return String(str)
