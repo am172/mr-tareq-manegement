@@ -3,16 +3,16 @@ const express = require('express');
 const Purchase = require('../models/Purchase');
 const auth = require('../middleware/auth');
 const Product = require('../models/Product');
-
+const Supplier = require('../models/Supplier'); // ✅ استدعاء المورد
 const router = express.Router();
 
 // ✅ Get all purchases with filters
 router.get('/', auth, async (req, res) => {
   try {
-    const { period } = req.query;
+    const { period, type, supplier } = req.query;
     let filter = {};
 
-    // Apply time filter
+    // فلتر الفترة الزمنية
     if (period && period !== 'all') {
       const now = new Date();
       let startDate;
@@ -28,6 +28,16 @@ router.get('/', auth, async (req, res) => {
       filter.purchaseDate = { $gte: startDate };
     }
 
+    // ✅ فلتر النوع
+    if (type && type !== 'all') {
+      filter.type = type; // "car" أو "part"
+    }
+
+    // ✅ فلتر المورد
+    if (supplier && supplier !== 'all') {
+      filter.supplier = supplier;
+    }
+
     const purchases = await Purchase.find(filter).sort({ purchaseDate: -1 });
     res.json(purchases);
   } catch (error) {
@@ -35,6 +45,7 @@ router.get('/', auth, async (req, res) => {
     res.status(500).json({ message: 'خطأ في الخادم' });
   }
 });
+
 
 // routes/purchases.js
 router.post('/', auth, async (req, res) => {
@@ -97,6 +108,22 @@ router.post('/', auth, async (req, res) => {
       await product.save();
     }
 
+    // ✅ 3. حدث المورد
+    let sup = await Supplier.findOne({ name: supplier });
+    if (!sup) {
+      sup = new Supplier({
+        name: supplier,
+        totalSpent: total,
+        cashPaid: 0,
+        remaining: total
+      });
+    } else {
+      sup.totalSpent += total;
+      sup.remaining = sup.totalSpent - sup.cashPaid;
+    }
+    await sup.save();
+
+
     res.status(201).json({ purchase, product });
   } catch (error) {
     console.error('Error creating purchase:', error);
@@ -111,18 +138,36 @@ router.post('/', auth, async (req, res) => {
 });
 
 
-// ✅ تحديث برضه لازم يحسب total
+// ✅ تحديث عملية شراء
 router.put('/:id', auth, async (req, res) => {
   try {
     const { id } = req.params;
     const update = req.body;
 
+    // هات النسخة القديمة قبل التعديل
+    const oldPurchase = await Purchase.findById(id);
+    if (!oldPurchase) return res.status(404).json({ message: 'لم يتم العثور على المشتري' });
+
+    // احسب الـ total الجديد
     if (update.quantity !== undefined && update.price !== undefined) {
       update.total = (update.quantity * update.price) + (update.shippingCost || 0) + (update.customsFee || 0);
+    } else {
+      update.total = (oldPurchase.quantity * oldPurchase.price) + (update.shippingCost || oldPurchase.shippingCost || 0) + (update.customsFee || oldPurchase.customsFee || 0);
     }
 
+    // حدث العملية
     const updated = await Purchase.findByIdAndUpdate(id, update, { new: true, runValidators: true });
-    if (!updated) return res.status(404).json({ message: 'لم يتم العثور على المشتري' });
+
+    // ✅ تعديل المورد
+    const diff = updated.total - oldPurchase.total;
+    if (diff !== 0) {
+      let sup = await Supplier.findOne({ name: updated.supplier });
+      if (sup) {
+        sup.totalSpent += diff;
+        sup.remaining = sup.totalSpent - sup.cashPaid;
+        await sup.save();
+      }
+    }
 
     res.json(updated);
   } catch (err) {
@@ -130,6 +175,7 @@ router.put('/:id', auth, async (req, res) => {
     res.status(400).json({ message: 'خطأ في التعديل', details: err.message });
   }
 });
+
 
 
 // ✅ تقرير المشتريات
