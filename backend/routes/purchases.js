@@ -90,7 +90,7 @@ router.post('/', auth, async (req, res) => {
       color,
       chassisNumber,
       condition,
-      invoiceNumber 
+      invoiceNumber
     });
     await purchase.save();
 
@@ -107,9 +107,15 @@ router.post('/', auth, async (req, res) => {
         quantity,
         price,
         serialNumber,
-        description: notes
+        description: notes,
+        model,
+        manufactureYear,
+        color,
+        chassisNumber,
+        condition
       });
       await product.save();
+
     }
 
     // ✅ 3. حدث المورد
