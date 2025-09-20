@@ -1,7 +1,8 @@
-// SalesForm.jsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react'; 
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import './SalesForm.css';
 
 const translations = {
@@ -16,7 +17,15 @@ const translations = {
     submitAdd: 'إضافة عملية بيع',
     submitEdit: 'تعديل',
     cancel: 'إلغاء',
-    available: 'متاحة'
+    available: 'متاحة',
+    fillFields: '⚠️ الرجاء تعبئة جميع الحقول',
+    qtyError: '⚠️ الكمية المطلوبة أكبر من المتاحة',
+    costWarning: '⚠️ السعر المدخل أقل من تكلفة الشراء. هل تريد المتابعة؟',
+    yes: 'نعم',
+    no: 'لا',
+    successAdd: 'تمت إضافة عملية البيع بنجاح',
+    successEdit: 'تم تعديل عملية البيع بنجاح',
+    error: 'حدث خطأ أثناء العملية'
   },
   en: {
     titleAdd: 'Sales Form',
@@ -29,7 +38,15 @@ const translations = {
     submitAdd: 'Add Sale',
     submitEdit: 'Update',
     cancel: 'Cancel',
-    available: 'Available'
+    available: 'Available',
+    fillFields: '⚠️ Please fill all fields',
+    qtyError: '⚠️ Requested quantity exceeds available stock',
+    costWarning: '⚠️ Entered price is below purchase cost. Do you want to proceed?',
+    yes: 'Yes',
+    no: 'No',
+    successAdd: 'Sale added successfully',
+    successEdit: 'Sale updated successfully',
+    error: 'An error occurred'
   },
   zh: {
     titleAdd: '销售表单',
@@ -42,7 +59,15 @@ const translations = {
     submitAdd: '添加销售',
     submitEdit: '更新',
     cancel: '取消',
-    available: '可用'
+    available: '可用',
+    fillFields: '⚠️ 请填写所有字段',
+    qtyError: '⚠️ 请求的数量超过可用库存',
+    costWarning: '⚠️ 输入的价格低于采购成本。是否要继续？',
+    yes: '是',
+    no: '否',
+    successAdd: '销售添加成功',
+    successEdit: '销售更新成功',
+    error: '发生错误'
   }
 };
 
@@ -90,18 +115,16 @@ const SalesForm = ({ onClose, existingSale }) => {
 
   const fetchInventory = async () => {
     try {
-      // ✅ دلوقتي بيجيب من المخزن مش المشتريات
       const res = await api.get('/api/products');
       setInventory(res.data.filter(i => i.quantity > 0));
     } catch (err) {
+      toast.error(t.error);
       console.error(err);
     }
   };
 
   const filteredProducts = inventory.filter(i =>
-    (i.productName || i.name || '')
-      .toLowerCase()
-      .includes(form.productName.toLowerCase())
+    (i.productName || i.name || '').toLowerCase().includes(form.productName.toLowerCase())
   );
 
   const handleProductChange = (e) => {
@@ -132,34 +155,48 @@ const SalesForm = ({ onClose, existingSale }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!form.productName || !form.price || !form.buyer || !form.quantity) {
-      return alert('الرجاء تعبئة جميع الحقول');
+      toast.warn(t.fillFields);
+      return;
     }
     if (form.quantity > availableQty && !existingSale) {
-      return alert('الكمية المطلوبة أكبر من المتاحة');
+      toast.error(t.qtyError);
+      return;
     }
 
-    // ✅ التحقق من التكلفة
     if (selectedProduct) {
       const basePrice = Number(selectedProduct.price) || 0;
       const shippingCost = Number(selectedProduct.shippingCost) || 0;
       const customsFee = Number(selectedProduct.customsFee) || 0;
       const qty = Number(selectedProduct.quantity) || 1;
-
-      const perUnitExtra = (shippingCost + customsFee) / qty;
-      const actualPurchaseCost = basePrice + perUnitExtra;
-
+      const actualPurchaseCost = basePrice + (shippingCost + customsFee) / qty;
       const salePrice = Number(form.price) || 0;
 
       if (salePrice < actualPurchaseCost) {
-        const confirmProceed = window.confirm(
-          `⚠️ السعر المدخل  أقل من تكلفة الشراء الكاملة  للوحدة.\nهل تريد المتابعة؟`
+        toast.info(
+          <div>
+            <p>{t.costWarning}</p>
+            <div style={{ display: 'flex', gap: '10px', marginTop: '8px' }}>
+              <button
+                onClick={() => {
+                  toast.dismiss();
+                  submitSale();
+                }}
+              >
+                {t.yes}
+              </button>
+              <button onClick={() => toast.dismiss()}>{t.no}</button>
+            </div>
+          </div>,
+          { autoClose: false }
         );
-        if (!confirmProceed) {
-          return;
-        }
+        return;
       }
     }
 
+    submitSale();
+  };
+
+  const submitSale = async () => {
     try {
       const payload = {
         productName: form.productName,
@@ -171,20 +208,21 @@ const SalesForm = ({ onClose, existingSale }) => {
 
       if (existingSale) {
         await api.put(`/api/sales/${existingSale._id}`, payload);
-        alert('تم تعديل عملية البيع بنجاح!');
+        toast.success(t.successEdit);
       } else {
         await api.post('/api/sales', payload);
-        alert('تمت عملية البيع بنجاح!');
+        toast.success(t.successAdd);
       }
 
       await fetchInventory();
       setForm({ productName: '', price: '', buyer: '', quantity: '', discount: '' });
       setAvailableQty(0);
       setSelectedProduct(null);
-      onClose();
+      onClose(true);
     } catch (err) {
-      console.error('Error in sale:', err.response?.data || err.message);
-      alert(err.response?.data?.message || 'حدث خطأ أثناء العملية');
+      console.error(err.response?.data || err.message);
+      toast.error(err.response?.data?.message || t.error);
+      onClose(false);
     }
   };
 
@@ -211,56 +249,33 @@ const SalesForm = ({ onClose, existingSale }) => {
                   className="suggestion-item"
                   onClick={() => handleSelectProduct(product)}
                 >
-                  <span className="product-name"> {product.productName || product.name}</span>
-                  <span className="product-info" style={{ color: "green",border:".3px solid green", padding:"5px", borderRadius:"10px", marginRight:"5px"}}>  {t.available}: {product.quantity}</span>
-                
+                  <span className="product-name">{product.productName || product.name}</span>
+                  <span className="product-info" style={{ color: "green", border: ".3px solid green", padding: "5px", borderRadius: "10px", marginRight: "5px" }}>
+                    {t.available}: {product.quantity}
+                  </span>
                 </div>
               ))}
             </div>
           )}
 
           <label>{t.price}</label>
-          <input
-            type="number"
-            step="0.01"
-            value={form.price}
-            onChange={e => setForm({ ...form, price: e.target.value })}
-            required
-          />
+          <input type="number" step="0.01" value={form.price} onChange={e => setForm({ ...form, price: e.target.value })} required />
 
           <label>{t.buyer}</label>
-          <input
-            type="text"
-            value={form.buyer}
-            onChange={e => setForm({ ...form, buyer: e.target.value })}
-            required
-          />
+          <input type="text" value={form.buyer} onChange={e => setForm({ ...form, buyer: e.target.value })} required />
 
           <label>
             {t.quantity} {existingSale ? '' : <span className="available">({t.available}: {availableQty})</span>}
           </label>
-          <input
-            type="number"
-            value={form.quantity}
-            onChange={e => setForm({ ...form, quantity: e.target.value })}
-            max={availableQty}
-            min="1"
-            required
-          />
+          <input type="number" value={form.quantity} onChange={e => setForm({ ...form, quantity: e.target.value })} max={availableQty} min="1" required />
 
           <label>{t.discount}</label>
-          <input
-            type="number"
-            step="0.01"
-            value={form.discount}
-            onChange={e => setForm({ ...form, discount: e.target.value })}
-            placeholder="%"
-          />
+          <input type="number" step="0.01" value={form.discount} onChange={e => setForm({ ...form, discount: e.target.value })} placeholder="%" />
 
           <button type="submit" disabled={availableQty === 0 && !existingSale}>
             {existingSale ? t.submitEdit : t.submitAdd}
           </button>
-          <button type="button" onClick={onClose} className="btn-cancel">{t.cancel}</button>
+          <button type="button" onClick={() => onClose(false)} className="btn-cancel">{t.cancel}</button>
         </form>
       </div>
     </div>
