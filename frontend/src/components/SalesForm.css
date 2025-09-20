@@ -81,7 +81,7 @@
   overflow-y: auto;
   background-color: #fff;
   position: relative;
-  z-index: 1000;
+  /* z-index: 1000; */
 }
 
 .autocomplete-list div {
