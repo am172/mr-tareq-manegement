@@ -50,6 +50,9 @@ router.get('/', auth, async (req, res) => {
 // routes/purchases.js
 router.post('/', auth, async (req, res) => {
   try {
+    let lastInvoice = await Purchase.findOne().sort({ invoiceNumber: -1 });
+    let invoiceNumber = lastInvoice ? lastInvoice.invoiceNumber + 1 : 1;
+
     let { serialNumber, productName, type, supplier, quantity, price, shippingCost, customsFee, notes, model, manufactureYear, color, chassisNumber, condition } = req.body;
 
     // تحقق من الحقول المطلوبة
@@ -86,7 +89,8 @@ router.post('/', auth, async (req, res) => {
       manufactureYear,
       color,
       chassisNumber,
-      condition
+      condition,
+      invoiceNumber 
     });
     await purchase.save();
 
