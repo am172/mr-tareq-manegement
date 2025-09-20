@@ -139,6 +139,7 @@ const Purchases = () => {
             } else {
                 const res = await api.post('/api/purchases', data);
                 setPurchases(prev => [...prev, res.data]);
+                window.location.reload();
             }
             setShowForm(false);
             setEditingPurchase(null);
