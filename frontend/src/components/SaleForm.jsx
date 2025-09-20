@@ -152,7 +152,7 @@ const SalesForm = ({ onClose, existingSale }) => {
 
       if (salePrice < actualPurchaseCost) {
         const confirmProceed = window.confirm(
-          `⚠️ السعر المدخل (${salePrice}) أقل من تكلفة الشراء الكاملة (${actualPurchaseCost.toFixed(2)}) للوحدة.\nهل تريد المتابعة؟`
+          `⚠️ السعر المدخل  أقل من تكلفة الشراء الكاملة  للوحدة.\nهل تريد المتابعة؟`
         );
         if (!confirmProceed) {
           return;
