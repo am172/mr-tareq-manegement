@@ -36,20 +36,20 @@ router.get('/', auth, async (req, res) => {
   }
 });
 
-// router/purchases
+// routes/purchases.js
 router.post('/', auth, async (req, res) => {
   try {
     let { serialNumber, productName, type, supplier, quantity, price, shippingCost, customsFee, notes, model, manufactureYear, color, chassisNumber, condition } = req.body;
 
     type = type === 'spare_part' ? 'part' : type;
 
-    // ✅ الحساب الجديد
     const total = (quantity * price) + (shippingCost || 0) + (customsFee || 0);
 
     if (!serialNumber) {
       serialNumber = `${Date.now()}-${Math.floor(Math.random() * 1000)}`;
     }
 
+    // ✅ 1. سجل المشتريات (ثابت)
     const purchase = new Purchase({
       serialNumber,
       productName,
@@ -67,14 +67,33 @@ router.post('/', auth, async (req, res) => {
       chassisNumber,
       condition
     });
-
     await purchase.save();
-    res.status(201).json(purchase);
+
+    // ✅ 2. حدث المخزن
+    let product = await Product.findOne({ name: productName });
+    if (product) {
+      product.quantity += quantity;
+      await product.save();
+    } else {
+      product = new Product({
+        name: productName,
+        type,
+        supplier,
+        quantity,
+        price,
+        serialNumber,
+        description: notes
+      });
+      await product.save();
+    }
+
+    res.status(201).json({ purchase, product });
   } catch (error) {
     console.error('Error creating purchase:', error);
     res.status(400).json({ error: 'Error creating purchase', details: error.message });
   }
 });
+
 
 // ✅ تحديث برضه لازم يحسب total
 router.put('/:id', auth, async (req, res) => {
