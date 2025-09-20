@@ -110,6 +110,14 @@ const PurchaseForm = ({ initialData, onSubmit, onCancel }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    // ✅ تحقق من الحقول المطلوبة فقط
+    if (!formData.serialNumber || !formData.productName || !formData.type ||
+      !formData.supplier || !formData.quantity || !formData.price || !formData.condition) {
+      alert(" الحقول الأساسية مطلوبة: الرقم التسلسلي، المنتج، النوع، المورد، الكمية،الحاله و السعر");
+      return;
+    }
+
     onSubmit(formData);
   };
 
