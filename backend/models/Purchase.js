@@ -22,7 +22,8 @@ const purchaseSchema = new mongoose.Schema({
   manufactureYear: Number,
   color: String,
   chassisNumber: String,
-  condition: { type: String, enum: ['new', 'used'] }
+  condition: { type: String, enum: ['new', 'used'] },
+  invoiceNumber: { type: Number, unique: true, required: true }
 }, { timestamps: true });
 
 purchaseSchema.set('toJSON', {
