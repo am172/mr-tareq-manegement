@@ -108,8 +108,13 @@ const Inventory = () => {
     const matchesType = filterType === 'all' || item.type === filterType;
     const matchesSupplier = filterSupplier === 'all' || (item.supplier || "") === filterSupplier;
     const matchesSearch = pname.includes(searchText.toLowerCase());
-    return matchesType && matchesSupplier && matchesSearch;
+
+    // ✅ استبعاد المنتجات اللي كميتها صفر
+    const hasQuantity = Number(item.quantity) > 0;
+
+    return matchesType && matchesSupplier && matchesSearch && hasQuantity;
   });
+
 
 
   const carsCount = inventory
@@ -164,12 +169,12 @@ const Inventory = () => {
         </select>
 
         {/* زر تفاصيل الموردين */}
-        <button
+        {/* <button
           className="btn-primary"
           onClick={() => window.location.href = '/suppliers'}
         >
           {language === 'ar' ? 'تفاصيل الموردين' : language === 'en' ? 'Supplier Details' : '供应商详情'}
-        </button>
+        </button> */}
 
         <button className="btn-primary" onClick={printReport}>{t.printInventory}</button>
       </div>
