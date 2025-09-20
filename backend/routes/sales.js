@@ -4,6 +4,7 @@ const router = express.Router();
 const Sale = require('../models/Sale');
 const Purchase = require('../models/Purchase');
 const auth = require('../middleware/auth');
+const Product = require('../models/Product');
 
 // ✅ جلب كل المبيعات مع دعم الفلاتر
 router.get('/', auth, async (req, res) => {
@@ -30,7 +31,6 @@ router.get('/', auth, async (req, res) => {
   }
 });
 
-// ✅ إضافة عملية بيع
 router.post('/', auth, async (req, res) => {
   try {
     const { productName, price, buyer, quantity, discount = 0 } = req.body;
@@ -39,47 +39,34 @@ router.post('/', auth, async (req, res) => {
       return res.status(400).json({ message: 'جميع الحقول مطلوبة' });
     }
 
-    const item = await Purchase.findOne({
-      productName: { $regex: new RegExp(productName, 'i') }
-    });
-
+    // ✅ شوف المخزن مش المشتريات
+    const item = await Product.findOne({ name: productName });
     if (!item) return res.status(404).json({ message: 'المنتج غير موجود في المخزن' });
 
-    const quantityNum = parseInt(quantity);
-    const priceNum = parseFloat(price);
-    const discountPercent = parseFloat(discount) || 0;
-
-    if (quantityNum > item.quantity) {
+    if (quantity > item.quantity) {
       return res.status(400).json({ message: 'الكمية المطلوبة أكبر من المتاحة' });
     }
 
-    // تحديث المخزن
-    item.quantity -= quantityNum;
+    // ✅ خصم من المخزن
+    item.quantity -= quantity;
     await item.save();
 
-    // حساب الإجمالي مع الخصم %
-    const subtotal = priceNum * quantityNum;
-    const total = subtotal * (1 - discountPercent / 100);
+    const subtotal = price * quantity;
+    const total = subtotal * (1 - (discount / 100));
 
-    // ✅ إنشاء عملية البيع
+    // ✅ سجل البيع
     const sale = new Sale({
       serialNumber: item.serialNumber,
-      productName: item.productName,
+      productName: item.name,
       type: item.type,
       supplier: item.supplier,
-      model: item.model,
-      manufactureYear: item.manufactureYear,
-      color: item.color,
-      chassisNumber: item.chassisNumber,
-      condition: item.condition,
-      price: priceNum,
+      price,
       buyer,
-      quantity: quantityNum,
-      discount: discountPercent,
+      quantity,
+      discount,
       total,
       date: new Date()
     });
-
 
     await sale.save();
 
