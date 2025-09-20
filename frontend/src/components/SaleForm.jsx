@@ -1,3 +1,4 @@
+// SalesForm.jsx
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
@@ -76,14 +77,21 @@ const SalesForm = ({ onClose, existingSale }) => {
         discount: existingSale.discount || ''
       });
 
-      const productInStock = inventory.find(i => i.productName === existingSale.productName);
-      setAvailableQty(productInStock ? productInStock.quantity + existingSale.quantity : existingSale.quantity);
+      const productInStock = inventory.find(
+        i => (i.productName || i.name) === existingSale.productName
+      );
+      setAvailableQty(
+        productInStock
+          ? productInStock.quantity + existingSale.quantity
+          : existingSale.quantity
+      );
     }
   }, [existingSale, inventory]);
 
   const fetchInventory = async () => {
     try {
-      const res = await api.get('/api/purchases');
+      // ✅ دلوقتي بيجيب من المخزن مش المشتريات
+      const res = await api.get('/api/products');
       setInventory(res.data.filter(i => i.quantity > 0));
     } catch (err) {
       console.error(err);
@@ -91,7 +99,9 @@ const SalesForm = ({ onClose, existingSale }) => {
   };
 
   const filteredProducts = inventory.filter(i =>
-    i.productName.toLowerCase().includes(form.productName.toLowerCase())
+    (i.productName || i.name || '')
+      .toLowerCase()
+      .includes(form.productName.toLowerCase())
   );
 
   const handleProductChange = (e) => {
@@ -99,7 +109,9 @@ const SalesForm = ({ onClose, existingSale }) => {
     setForm({ ...form, productName: val });
     setShowSuggestions(true);
 
-    const exactMatch = inventory.find(i => i.productName.toLowerCase() === val.toLowerCase());
+    const exactMatch = inventory.find(
+      i => (i.productName || i.name || '').toLowerCase() === val.toLowerCase()
+    );
     if (exactMatch) {
       setSelectedProduct(exactMatch);
       setAvailableQty(exactMatch.quantity);
@@ -111,7 +123,7 @@ const SalesForm = ({ onClose, existingSale }) => {
   };
 
   const handleSelectProduct = (product) => {
-    setForm({ ...form, productName: product.productName, price: '' });
+    setForm({ ...form, productName: product.productName || product.name, price: '' });
     setSelectedProduct(product);
     setAvailableQty(product.quantity);
     setShowSuggestions(false);
@@ -126,12 +138,12 @@ const SalesForm = ({ onClose, existingSale }) => {
       return alert('الكمية المطلوبة أكبر من المتاحة');
     }
 
-    // ✅ حساب التكلفة الحقيقية للوحدة
+    // ✅ التحقق من التكلفة
     if (selectedProduct) {
       const basePrice = Number(selectedProduct.price) || 0;
       const shippingCost = Number(selectedProduct.shippingCost) || 0;
       const customsFee = Number(selectedProduct.customsFee) || 0;
-      const qty = Number(selectedProduct.quantity) || 1; // 👈 تجنب القسمة على صفر
+      const qty = Number(selectedProduct.quantity) || 1;
 
       const perUnitExtra = (shippingCost + customsFee) / qty;
       const actualPurchaseCost = basePrice + perUnitExtra;
@@ -140,14 +152,13 @@ const SalesForm = ({ onClose, existingSale }) => {
 
       if (salePrice < actualPurchaseCost) {
         const confirmProceed = window.confirm(
-          `⚠️ السعر المدخل  أقل من تكلفة الشراء الكاملة للوحدة.\nهل تريد المتابعة؟`
+          `⚠️ السعر المدخل (${salePrice}) أقل من تكلفة الشراء الكاملة (${actualPurchaseCost.toFixed(2)}) للوحدة.\nهل تريد المتابعة؟`
         );
         if (!confirmProceed) {
           return;
         }
       }
     }
-
 
     try {
       const payload = {
@@ -195,9 +206,14 @@ const SalesForm = ({ onClose, existingSale }) => {
           {showSuggestions && filteredProducts.length > 0 && !existingSale && (
             <div className="autocomplete-list">
               {filteredProducts.map(product => (
-                <div key={product._id} className="suggestion-item" onClick={() => handleSelectProduct(product)}>
-                  <span className="product-name">{product.productName}</span>
-                  <span className="product-info">{t.available}: {product.quantity}</span>
+                <div
+                  key={product._id}
+                  className="suggestion-item"
+                  onClick={() => handleSelectProduct(product)}
+                >
+                  <span className="product-name"> {product.productName || product.name}</span>
+                  <span className="product-info" style={{ color: "green",border:".3px solid green", padding:"5px", borderRadius:"10px", marginRight:"5px"}}>  {t.available}: {product.quantity}</span>
+                
                 </div>
               ))}
             </div>
@@ -213,7 +229,12 @@ const SalesForm = ({ onClose, existingSale }) => {
           />
 
           <label>{t.buyer}</label>
-          <input type="text" value={form.buyer} onChange={e => setForm({ ...form, buyer: e.target.value })} required />
+          <input
+            type="text"
+            value={form.buyer}
+            onChange={e => setForm({ ...form, buyer: e.target.value })}
+            required
+          />
 
           <label>
             {t.quantity} {existingSale ? '' : <span className="available">({t.available}: {availableQty})</span>}
