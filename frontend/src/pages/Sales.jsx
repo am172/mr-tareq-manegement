@@ -4,6 +4,8 @@ import SalesForm from '../components/SaleForm';
 import './Sales.css';
 import { FaPrint, FaWhatsapp, FaEdit, FaTrash } from 'react-icons/fa';
 import { useLanguage } from '../context/LanguageContext';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const translations = {
   ar: {
@@ -22,7 +24,14 @@ const translations = {
     monthFilter: 'تصفية بالشهر',
     periodFilter: 'تصفية بالمدة',
     printReport: 'طباعة تقرير شامل',
-    confirmDelete: 'هل أنت متأكد من الحذف؟',
+    confirmDelete: 'هل أنت متأكد أنك تريد الحذف؟',
+    finalConfirm: 'هل أنت متأكد نهائيًا من الحذف؟',
+    deleted: 'تم الحذف بنجاح ✅',
+    error: 'حدث خطأ أثناء العملية ❌',
+    added: 'تمت الإضافة بنجاح ✅',
+    updated: 'تم التعديل بنجاح ✅',
+    addError: 'حدث خطأ أثناء الإضافة ❌',
+    updateError: 'حدث خطأ أثناء التعديل ❌',
     itemCar: 'سيارة',
     itemPart: 'قطعة',
     conditionNew: 'جديد',
@@ -35,6 +44,8 @@ const translations = {
     color: 'اللون',
     chassis: 'رقم الشاسيه',
     condition: 'الحالة',
+    yes: 'نعم',
+    no: 'لا'
   },
   en: {
     title: 'Sales',
@@ -53,12 +64,18 @@ const translations = {
     periodFilter: 'Filter by period',
     printReport: 'Print Full Report',
     confirmDelete: 'Are you sure you want to delete?',
+    finalConfirm: 'Are you absolutely sure?',
+    deleted: 'Deleted successfully ✅',
+    error: 'Error while processing ❌',
+    added: 'Added successfully ✅',
+    updated: 'Updated successfully ✅',
+    addError: 'Error while adding ❌',
+    updateError: 'Error while updating ❌',
     itemCar: 'Car',
     itemPart: 'Part',
     conditionNew: 'New',
     conditionUsed: 'Used',
     serial: 'Serial',
-    // product: 'Product',
     type: 'Type',
     supplier: 'Supplier',
     model: 'Model',
@@ -66,19 +83,13 @@ const translations = {
     color: 'Color',
     chassis: 'Chassis No',
     condition: 'Condition',
+    yes: 'Yes',
+    no: 'No'
   },
   zh: {
     title: '销售',
     addSale: '添加销售',
-    serial: '序列号',
     product: '产品',
-    type: '类型',
-    supplier: '供应商',
-    model: '型号',
-    year: '年份',
-    color: '颜色',
-    chassis: '车架号',
-    condition: '状况',
     buyer: '买家',
     quantity: '数量',
     price: '价格',
@@ -92,10 +103,27 @@ const translations = {
     periodFilter: '按期间筛选',
     printReport: '打印完整报告',
     confirmDelete: '您确定要删除吗？',
+    finalConfirm: '您确定要永久删除吗？',
+    deleted: '删除成功 ✅',
+    error: '处理时出错 ❌',
+    added: '添加成功 ✅',
+    updated: '更新成功 ✅',
+    addError: '添加时出错 ❌',
+    updateError: '更新时出错 ❌',
     itemCar: '汽车',
     itemPart: '零件',
     conditionNew: '新的',
     conditionUsed: '二手的',
+    serial: '序列号',
+    type: '类型',
+    supplier: '供应商',
+    model: '型号',
+    year: '年份',
+    color: '颜色',
+    chassis: '车架号',
+    condition: '状况',
+    yes: '是',
+    no: '否'
   }
 };
 
@@ -125,18 +153,63 @@ const Sales = () => {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm(t.confirmDelete)) return;
-    await new Promise(resolve => setTimeout(resolve, 400));
-    if (!window.confirm('هل أنت متأكد نهائيًا من حذف هذه العملية؟')) return;
-
-    try {
-      await api.delete(`/api/sales/${id}`);
-      fetchSales();
-    } catch (err) {
-      console.error(err);
-    }
+    toast.info(
+      <div>
+        <p>{t.confirmDelete}</p>
+        <div style={{ display: 'flex', gap: '10px', marginTop: '8px' }}>
+          <button
+            onClick={async () => {
+              toast.dismiss();
+              toast.info(
+                <div>
+                  <p>{t.finalConfirm}</p>
+                  <div style={{ display: 'flex', gap: '10px', marginTop: '8px' }}>
+                    <button
+                      onClick={async () => {
+                        try {
+                          await api.delete(`/api/sales/${id}`);
+                          fetchSales();
+                          toast.success(t.deleted);
+                        } catch (err) {
+                          toast.error(t.error);
+                        }
+                      }}
+                    >
+                      {t.yes}
+                    </button>
+                    <button onClick={() => toast.dismiss()}>{t.no}</button>
+                  </div>
+                </div>,
+                { autoClose: false }
+              );
+            }}
+          >
+            {t.yes}
+          </button>
+          <button onClick={() => toast.dismiss()}>{t.no}</button>
+        </div>
+      </div>,
+      { autoClose: false }
+    );
   };
 
+  // const handleFormClose = (success, isEdit = false) => {
+  //   setShowForm(false);
+  //   if (success) {
+  //     fetchSales();
+  //     if (isEdit) {
+  //       toast.success(t.updated);
+  //     } else {
+  //       toast.success(t.added);
+  //     }
+  //   } else if (success === false) {
+  //     if (isEdit) {
+  //       toast.error(t.updateError);
+  //     } else {
+  //       toast.error(t.addError);
+  //     }
+  //   }
+  // };
   const handlePrintInvoice = (sale) => {
     const printContent = `
 <!DOCTYPE html>
@@ -250,11 +323,11 @@ const Sales = () => {
   };
 
   const handlePrintReport = () => {
-  const table = document.querySelector('.sales-table').cloneNode(true);
-  Array.from(table.querySelectorAll('tr')).forEach(row => row.deleteCell(-1)); // إزالة عمود العمليات
-  table.classList.add('invoice-table'); // إضافة CSS مخصص
+    const table = document.querySelector('.sales-table').cloneNode(true);
+    Array.from(table.querySelectorAll('tr')).forEach(row => row.deleteCell(-1)); // إزالة عمود العمليات
+    table.classList.add('invoice-table'); // إضافة CSS مخصص
 
-  const printContent = `
+    const printContent = `
 <!DOCTYPE html>
 <html lang="${language}">
 <head>
@@ -289,12 +362,12 @@ const Sales = () => {
 </html>
   `;
 
-  const newWindow = window.open('', '_blank');
-  newWindow.document.write(printContent);
-  newWindow.document.close();
-  newWindow.focus();
-  newWindow.print();
-};
+    const newWindow = window.open('', '_blank');
+    newWindow.document.write(printContent);
+    newWindow.document.close();
+    newWindow.focus();
+    newWindow.print();
+  };
 
 
   const handleWhatsApp = (sale) => {
