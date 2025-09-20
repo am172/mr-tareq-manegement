@@ -54,8 +54,14 @@ router.post('/', auth, async (req, res) => {
     const subtotal = price * quantity;
     const total = subtotal * (1 - (discount / 100));
 
+      // ✅ احسب آخر رقم فاتورة + 1
+    const lastSale = await Sale.findOne().sort({ invoiceNumber: -1 });
+    const nextInvoiceNumber = lastSale ? lastSale.invoiceNumber + 1 : 1;
+
+
     // ✅ سجل البيع
     const sale = new Sale({
+      invoiceNumber: nextInvoiceNumber,
       serialNumber: item.serialNumber,
       productName: item.name,
       type: item.type,
