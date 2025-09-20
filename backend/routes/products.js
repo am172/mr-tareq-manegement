@@ -1,3 +1,4 @@
+// router/products
 const express = require('express');
 const Product = require('../models/Product');
 const auth = require('../middleware/auth');
@@ -7,13 +8,13 @@ const router = express.Router();
 
 // Get all inventory items
 router.get('/', auth, async (req, res) => {
-    try {
-        const purchases = await Purchase.find().sort({ purchaseDate: -1 });
-        res.json(purchases);
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'خطأ في الخادم' });
-    }
+  try {
+    const products = await Product.find().sort({ name: 1 });
+    res.json(products);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'خطأ في الخادم' });
+  }
 });
 
 // Add new product
