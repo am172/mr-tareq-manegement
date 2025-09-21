@@ -108,11 +108,23 @@ body {
 
 /* Table */
 .table-wrap{
-  overflow-x:auto;
+   overflow-x: auto;
+      scrollbar-color: #007bff #f1f1f1;
+    scrollbar-width: auto;
   background: #fff;
   border-radius:10px;
   padding:6px;
   border:1px solid #eef2f6;
+}
+.table-wrap::-webkit-scrollbar {
+  height: 8px;
+}
+.table-wrap::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+.table-wrap::-webkit-scrollbar-thumb {
+  background: blue;
+  border-radius: 4px;
 }
 
 .purchases-table{
@@ -212,3 +224,48 @@ body {
 
 /* small utility */
 .text-muted{ color:var(--muted); font-size:0.9rem }
+.no-results {
+  padding:24px;
+  text-align:center;
+      color: #d32029;
+    font-size: 21px;
+}
+
+/* تحسين الطباعة: قلل الحافات والخطوط */
+@media print {
+  body, html {
+    margin: 0;
+    padding: 0;
+  }
+  .table-wrap { max-height: none; overflow: visible; }
+  .purchases-table {
+    width:100%;
+    font-size:11px;
+    table-layout: fixed;
+    word-break: break-word;
+    border-collapse: collapse;
+  }
+  .purchases-table th, .purchases-table td {
+    padding:4px;
+    border:1px solid #ddd;
+  }
+  thead { display: table-header-group; }
+  tr { page-break-inside: avoid; }
+}
+
+.filter-wrap label { font-size:12px; color:#333; }
+.filter-wrap select, .filter-wrap input {
+  padding:6px 8px;
+  border-radius:4px;
+  border:1px solid #ccc;
+  min-width:120px;
+}
+
+/* ملخص الفلاتر */
+.filter-summary { 
+  margin:8px 0 12px;
+  text-align: center;
+  font-size: 22px;
+ }
+
+.filter-summary small { color:#333; background:#f7f7f7; padding:6px 8px; border-radius:4px; }
