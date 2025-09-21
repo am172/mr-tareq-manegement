@@ -14,10 +14,19 @@
 }
 
 .page h1 {
-  text-align: center;
-  font-size: 28px;
-  margin-bottom: 20px;
-  color: #333;
+    text-align: center;
+    font-size: 40px;
+    margin-bottom: 20px;
+    color: #333;
+    width: fit-content;
+    margin: 11px auto;
+    background: #2c3e50;
+    color: white;
+    padding: 17px 68px;
+    position: relative;
+    padding-top: 24px;
+    top: -68px;
+    border-radius: 32px;
 }
 
 .page h2 {
