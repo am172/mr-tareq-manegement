@@ -98,12 +98,33 @@
 }
 
 /* الغلاف الخارجي للجدول */
+
 .table-wrapper {
-  overflow-x:auto;
-  background: #fff;
-  border-radius:10px;
-  padding:6px;
-  border:1px solid #eef2f6;
+  width: 100%;
+  overflow-x: auto; /* سكرول أفقي */
+  border: 1px solid #ddd;
+  border-radius: 6px;
+}
+
+/* تخصيص شكل السكرول */
+.table-wrapper::-webkit-scrollbar {
+  height: 8px; /* ارتفاع السكرول الأفقي */
+}
+
+.table-wrapper::-webkit-scrollbar-thumb {
+  background: #007bff; /* اللون الأزرق */
+  border-radius: 4px;
+}
+
+.table-wrapper::-webkit-scrollbar-track {
+  background: #f1f1f1; /* خلفية فاتحة */
+}
+
+
+/* للمتصفحات اللي بتدعم scrollbar-color */
+.table-wrapper {
+  scrollbar-color: #007bff #f1f1f1; /* thumb color | track color */
+  scrollbar-width: thin;
 }
 
 /* الجدول نفسه */
