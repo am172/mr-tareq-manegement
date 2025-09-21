@@ -1,3 +1,4 @@
+// Purchases.jsx
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import PurchaseForm from '../components/PurchaseForm';
@@ -15,6 +16,7 @@ const translations = {
         daily: 'يومي',
         weekly: 'أسبوعي',
         monthly: 'شهري',
+        custom: 'مخصص',
         addPurchase: 'إضافة مشتري',
         printReport: 'طباعة تقرير كامل',
         serial: 'الرقم التسلسلي',
@@ -28,9 +30,10 @@ const translations = {
         total: 'الإجمالي',
         date: 'التاريخ',
         actions: 'أوامر',
-        itemCar: 'سيارة',
-        itemPart: 'قطعة غيار',
+        itemCar: 'السيارات',
+        itemPart: 'قطع الغيار',
         noPurchases: 'لا توجد مشتريات',
+        noPurchasesDetail: 'لا توجد نتائج مطابقة للمعايير المحددة.',
         invoice: 'فاتورة شراء',
         model: 'موديل',
         manufactureYear: 'سنة الصنع',
@@ -46,7 +49,13 @@ const translations = {
         allTypes: "الكل",
         car: "سيارة",
         part: "قطعة غيار",
-
+        invoiceNumber: 'رقم الفاتورة',
+        summaryPrefix_car: 'عرض السيارات',
+        summaryPrefix_part: 'عرض قطع الغيار',
+        during: 'خلال',
+        fromTo: 'من',
+        toLabel: 'إلى',
+        noResultsDuring: 'لا توجد مشتريات خلال هذه الفترة.',
         // إشعارات
         addSuccess: '✅ تم إضافة المنتج بنجاح',
         editConfirm: 'هل أنت متأكد أنك تريد تعديل عملية الشراء الخاصة بـ',
@@ -58,7 +67,6 @@ const translations = {
         allowPopups: '⚠️ من فضلك اسمح بالنوافذ المنبثقة',
         confirm: 'تأكيد',
         cancel: 'إلغاء',
-        invoiceNumber: 'رقم الفاتورة',
     },
     en: {
         title: 'Purchases',
@@ -67,6 +75,7 @@ const translations = {
         daily: 'Daily',
         weekly: 'Weekly',
         monthly: 'Monthly',
+        custom: 'Custom',
         addPurchase: 'Add Purchase',
         printReport: 'Print Full Report',
         serial: 'Serial Number',
@@ -83,6 +92,7 @@ const translations = {
         itemCar: 'Car',
         itemPart: 'Part',
         noPurchases: 'No purchases',
+        noPurchasesDetail: 'No results match the applied filters.',
         invoice: 'Purchase Invoice',
         model: 'Model',
         manufactureYear: 'Manufacture Year',
@@ -99,8 +109,12 @@ const translations = {
         car: "Car",
         part: "Part",
         invoiceNumber: 'Invoice Number',
-
-        // Notifications
+        summaryPrefix_car: 'Showing cars',
+        summaryPrefix_part: 'Showing parts',
+        during: 'during',
+        fromTo: 'from',
+        toLabel: 'to',
+        noResultsDuring: 'No purchases during this period.',
         addSuccess: '✅ Product added successfully',
         editConfirm: 'Are you sure you want to edit the purchase of',
         deleteConfirm: 'Are you sure you want to delete the purchase of',
@@ -119,6 +133,7 @@ const translations = {
         daily: '每日',
         weekly: '每周',
         monthly: '每月',
+        custom: '自定义',
         addPurchase: '添加采购',
         printReport: '打印完整报告',
         serial: '序列号',
@@ -135,6 +150,7 @@ const translations = {
         itemCar: '汽车',
         itemPart: '零件',
         noPurchases: '暂无采购记录',
+        noPurchasesDetail: '没有匹配当前筛选条件的结果。',
         invoice: '采购发票',
         model: '型号',
         manufactureYear: '生产年份',
@@ -150,8 +166,13 @@ const translations = {
         allTypes: "全部",
         car: "汽车",
         part: "零件",
-
-        // Notifications
+        invoiceNumber: '发票号码',
+        summaryPrefix_car: '显示汽车',
+        summaryPrefix_part: '显示零件',
+        during: '在',
+        fromTo: '从',
+        toLabel: '至',
+        noResultsDuring: '该期间内没有采购记录。',
         addSuccess: '✅ 产品添加成功',
         editConfirm: '您确定要修改该采购吗',
         deleteConfirm: '您确定要删除该采购吗',
@@ -162,13 +183,18 @@ const translations = {
         allowPopups: '⚠️ 请允许弹出窗口',
         confirm: '确认',
         cancel: '取消',
-        invoiceNumber: '发票号码',
     }
 };
 
 const Purchases = () => {
     const [purchases, setPurchases] = useState([]);
-    const [filter, setFilter] = useState('all');
+    const [filter, setFilter] = useState('all'); // all/daily/weekly/monthly/custom
+    const [dateValue, setDateValue] = useState(''); // for daily/weekly
+    const [monthValue, setMonthValue] = useState(''); // MM
+    const [yearValue, setYearValue] = useState(''); // YYYY
+    const [fromValue, setFromValue] = useState('');
+    const [toValue, setToValue] = useState('');
+
     const [typeFilter, setTypeFilter] = useState("all");
     const [supplierFilter, setSupplierFilter] = useState("all");
     const [suppliers, setSuppliers] = useState([]);
@@ -181,30 +207,56 @@ const Purchases = () => {
     const t = translations[language];
 
     useEffect(() => {
+        fetchSuppliers();
+    }, []);
+
+    useEffect(() => {
         fetchPurchases();
-    }, [filter, typeFilter, supplierFilter]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [filter, dateValue, monthValue, yearValue, fromValue, toValue, typeFilter, supplierFilter]);
+
+    const fetchSuppliers = async () => {
+        try {
+            const res = await api.get('/api/suppliers');
+            setSuppliers(res.data || []);
+        } catch (err) {
+            console.error("Error fetching suppliers:", err);
+            setSuppliers([]);
+        }
+    };
+
+    const buildQuery = () => {
+        const params = new URLSearchParams();
+        params.append('period', filter || 'all');
+        if (filter === 'daily' && dateValue) params.append('date', dateValue);
+        if (filter === 'weekly' && dateValue) params.append('date', dateValue);
+        if (filter === 'monthly' && monthValue && yearValue) {
+            params.append('month', monthValue);
+            params.append('year', yearValue);
+        }
+        if (filter === 'custom' && fromValue && toValue) {
+            params.append('from', fromValue);
+            params.append('to', toValue);
+        }
+        params.append('type', typeFilter || 'all');
+        // بدل ما تبعت supplier._id
+        const s = suppliers.find(s => s._id === supplierFilter);
+        params.append('supplier', s ? s.name : supplierFilter);
+
+
+        return params.toString();
+    };
 
     const fetchPurchases = async () => {
         try {
-            const response = await api.get(`/api/purchases?period=${filter}&type=${typeFilter}&supplier=${supplierFilter}`);
+            const q = buildQuery();
+            const response = await api.get(`/api/purchases?${q}`);
             setPurchases(Array.isArray(response.data) ? response.data : []);
         } catch (error) {
             console.error('Error fetching purchases:', error);
             setPurchases([]);
         }
     };
-
-    useEffect(() => {
-        const fetchSuppliers = async () => {
-            try {
-                const res = await api.get('/api/suppliers');
-                setSuppliers(res.data || []);
-            } catch (err) {
-                console.error("Error fetching suppliers:", err);
-            }
-        };
-        fetchSuppliers();
-    }, []);
 
     const handleSavePurchase = async (data) => {
         try {
@@ -214,7 +266,7 @@ const Purchases = () => {
                 toast.success(t.addSuccess);
             } else {
                 const res = await api.post('/api/purchases', data);
-                setPurchases(prev => [...prev, res.data]);
+                setPurchases(prev => [res.data, ...prev]);
                 toast.success(t.addSuccess);
                 window.location.reload();
             }
@@ -226,7 +278,7 @@ const Purchases = () => {
         }
     };
 
-    // ✅ توست للتأكيد
+    // توست التأكيد
     const showConfirmToast = (message, onConfirm) => {
         toast.info(
             ({ closeToast }) => (
@@ -255,14 +307,13 @@ const Purchases = () => {
         );
     };
 
-    // ✅ حذف بخطوتين
     const handleDelete = (purchase) => {
         showConfirmToast(`${t.deleteConfirm} "${purchase.productName}"؟`, () => {
             setTimeout(() => {
                 showConfirmToast(`${t.deleteFinalConfirm} "${purchase.productName}"؟`, async () => {
                     try {
-                        await api.delete(`/api/purchases/${purchase.id}`);
-                        setPurchases((prev) => prev.filter((p) => p.id !== purchase.id));
+                        await api.delete(`/api/purchases/${purchase.id || purchase._id}`);
+                        setPurchases((prev) => prev.filter((p) => (p.id || p._id) !== (purchase.id || purchase._id)));
                         toast.success(t.deleteSuccess);
                     } catch (error) {
                         console.error(error);
@@ -273,7 +324,6 @@ const Purchases = () => {
         });
     };
 
-    // ✅ تعديل
     const handleEdit = (purchase) => {
         showConfirmToast(`${t.editConfirm} "${purchase.productName}"؟`, () => {
             setEditingPurchase(purchase);
@@ -285,7 +335,7 @@ const Purchases = () => {
     const printInvoice = (purchase) => {
         const html = invoiceHtml(purchase, t);
         const w = window.open('', '_blank', 'width=900,height=800');
-        if (!w) { alert('Allow popups'); return; }
+        if (!w) { alert(t.allowPopups); return; }
         w.document.write(html);
         w.document.close();
         w.focus();
@@ -293,13 +343,14 @@ const Purchases = () => {
     };
 
     const printReport = () => {
-        const html = reportHtml(purchases, t);
+        const summary = filterSummary(); // ✅ ناخد النص الجاهز من الفلاتر
+        const html = reportHtml(purchases, t, summary);
         const w = window.open('', '_blank', 'width=1100,height=800');
-        if (!w) { alert('Allow popups'); return; }
+        if (!w) { alert(t.allowPopups); return; }
         w.document.write(html);
         w.document.close();
         w.focus();
-        setTimeout(() => w.print(), 500);
+        setTimeout(() => w.print(), 700);
     };
 
     const sendWhatsApp = (purchase) => {
@@ -316,16 +367,69 @@ const Purchases = () => {
     const formatDate = (d) => d ? new Date(d).toLocaleDateString('en-GB') : '';
     const formatMoney = (num) => Number(num || 0).toLocaleString('en-US', { maximumFractionDigits: 2 });
 
-    // ✅ دالة لحساب الإجمالي الظاهر
     const calcDisplayTotal = (p) => {
-        return (p.price * p.quantity) + (p.shippingCost || 0) + (p.customsFee || 0);
+        return (Number(p.price || 0) * Number(p.quantity || 0)) + (Number(p.shippingCost || 0) || 0) + (Number(p.customsFee || 0) || 0);
     };
+
+    // === دالة توليد نص ملخص الفلاتر باللغات الثلاثة ===
+    const filterSummary = () => {
+        const typeText = typeFilter === 'car' ? t.itemCar : (typeFilter === 'part' ? t.itemPart : '');
+        const supplierText = supplierFilter && supplierFilter !== 'all'
+            ? (() => {
+                const s = suppliers.find(s => (s._id === supplierFilter || s.id === supplierFilter));
+                return s ? s.name : supplierFilter;
+            })()
+            : '';
+
+        // صياغة الفترة
+        let periodText = '';
+        if (filter === 'all') {
+            periodText = language === 'ar' ? ' ' :
+                language === 'en' ? 'in all periods' :
+                    '在所有时间段';
+        } else if (filter === 'daily') {
+            periodText = dateValue ? `${t.during} ${formatDate(dateValue)}` : t.daily;
+        } else if (filter === 'weekly') {
+            periodText = dateValue ? `${t.during} ${formatDate(dateValue)}` : t.weekly;
+        } else if (filter === 'monthly') {
+            periodText = (monthValue && yearValue) ? `${t.during} ${monthValue}/${yearValue}` : t.monthly;
+        } else if (filter === 'custom') {
+            periodText = (fromValue && toValue) ? `${t.fromTo} ${formatDate(fromValue)} ${t.toLabel} ${formatDate(toValue)}` : t.custom;
+        }
+
+        // ===== العربية =====
+        if (language === 'ar') {
+            if (!typeText && !supplierText) return `عرض جميع المشتريات ${periodText}`;
+            if (!supplierText) return `عرض ${typeText} ${periodText}`;
+            if (!typeText) return `عرض جميع المشتريات من المورد "${supplierText}" ${periodText}`;
+            return `عرض ${typeText} من المورد "${supplierText}" ${periodText}`;
+        }
+
+        // ===== الإنجليزية =====
+        if (language === 'en') {
+            if (!typeText && !supplierText) return `Showing purchases ${periodText}`;
+            if (!supplierText) return `Showing ${typeText}s ${periodText}`;
+            if (!typeText) return `Showing purchases from ${supplierText} ${periodText}`;
+            return `Showing ${typeText}s from ${supplierText} ${periodText}`;
+        }
+
+        // ===== الصينية =====
+        if (language === 'zh') {
+            if (!typeText && !supplierText) return `显示采购 ${periodText}`;
+            if (!supplierText) return `显示${typeText}${periodText}`;
+            if (!typeText) return `显示来自 ${supplierText} 的采购 ${periodText}`;
+            return `显示${typeText} 来自 ${supplierText} ${periodText}`;
+        }
+
+        return '';
+    };
+
 
     return (
         <div className="purchases-page">
             <h1>{t.title}</h1>
             <header className="purchases-header">
-                
+
                 <div className="btn-group">
                     <button className="btn btn-primary" onClick={openNewForm}>{t.addPurchase}</button>
                     <button className="btn btn-secondary" onClick={printReport}>{t.printReport}</button>
@@ -336,10 +440,52 @@ const Purchases = () => {
                         <select value={filter} onChange={(e) => setFilter(e.target.value)}>
                             <option value="all">{t.all}</option>
                             <option value="daily">{t.daily}</option>
-                            <option value="weekly">{t.weekly}</option>
+                            {/* <option value="weekly">{t.weekly}</option> */}
                             <option value="monthly">{t.monthly}</option>
+                            <option value="custom">{t.custom}</option>
                         </select>
                     </div>
+
+                    {/* inputs الخاصة بالتاريخ تبعاً لنوع الفلتر */}
+                    {filter === 'daily' && (
+                        <div className="filter-wrap">
+                            <label>{t.date}</label>
+                            <input type="date" value={dateValue} onChange={(e) => setDateValue(e.target.value)} />
+                        </div>
+                    )}
+
+                    {filter === 'weekly' && (
+                        <div className="filter-wrap">
+                            <label>{t.weekly}</label>
+                            <input type="date" value={dateValue} onChange={(e) => setDateValue(e.target.value)} title="Select any date within the week you want" />
+                        </div>
+                    )}
+
+                    {filter === 'monthly' && (
+                        <>
+                            <div className="filter-wrap">
+                                <label>شهر</label>
+                                <input type="number" min="1" max="12" placeholder="MM" value={monthValue} onChange={(e) => setMonthValue(e.target.value)} />
+                            </div>
+                            <div className="filter-wrap">
+                                <label>سنة</label>
+                                <input type="number" min="1900" max="2100" placeholder="YYYY" value={yearValue} onChange={(e) => setYearValue(e.target.value)} />
+                            </div>
+                        </>
+                    )}
+
+                    {filter === 'custom' && (
+                        <>
+                            <div className="filter-wrap">
+                                <label>{t.fromTo}</label>
+                                <input type="date" value={fromValue} onChange={(e) => setFromValue(e.target.value)} />
+                            </div>
+                            <div className="filter-wrap">
+                                <label>{t.toLabel}</label>
+                                <input type="date" value={toValue} onChange={(e) => setToValue(e.target.value)} />
+                            </div>
+                        </>
+                    )}
 
                     <div className="filter-wrap">
                         <label>{t.filterType}</label>
@@ -355,14 +501,17 @@ const Purchases = () => {
                         <select value={supplierFilter} onChange={(e) => setSupplierFilter(e.target.value)}>
                             <option value="all">{t.allSuppliers}</option>
                             {suppliers.map(s => (
-                                <option key={s._id} value={s.name}>{s.name}</option>
+                                <option key={s._id} value={s._id}>{s.name}</option>
                             ))}
                         </select>
                     </div>
-
-
                 </div>
             </header>
+
+            {/* نص ملخص الفلاتر */}
+            <div className="filter-summary">
+                {filterSummary() && <small>{filterSummary()}</small>}
+            </div>
 
             {showForm && (
                 <div className="form-area">
@@ -375,64 +524,72 @@ const Purchases = () => {
             )}
 
             <div className="table-wrap">
-                <table className="purchases-table">
-                    <thead>
-                        <tr>
-                            <th>{t.serial}</th>
-                            <th>{t.product}</th>
-                            <th>{t.type}</th>
-                            <th>{t.supplier}</th>
-                            <th>{t.model}</th>
-                            <th>{t.manufactureYear}</th>
-                            <th>{t.color}</th>
-                            <th>{t.chassisNumber}</th>
-                            <th>{t.condition}</th>
-                            <th>{t.quantity}</th>
-                            <th>{t.price}</th>
-                            <th>{t.shippingCost}</th>
-                            <th>{t.customsFee}</th>
-                            <th>{t.total}</th>
-                            <th>{t.date}</th>
-                            <th>{t.actions}</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {purchases.map(p => (
-                            <tr key={p.id || p._id}>
-                                <td>{p.serialNumber || '---'}</td>
-                                <td>{p.productName || '---'}</td>
-                                <td>{p.type === 'car' ? t.itemCar : t.itemPart}</td>
-                                <td>{p.supplier || '---'}</td>
-                                <td>{p.model || '---'}</td>
-                                <td>{p.manufactureYear || '---'}</td>
-                                <td>{p.color || '---'}</td>
-                                <td>{p.chassisNumber || '---'}</td>
-                                <td>{p.condition ? (p.condition === 'new' ? t.conditionNew : t.conditionUsed) : t.conditionEmpty}</td>
-                                <td>{p.quantity || 0}</td>
-                                <td>{formatMoney(p.price)}</td>
-                                <td>{formatMoney(p.shippingCost || 0)}</td>
-                                <td>{formatMoney(p.customsFee || 0)}</td>
-                                <td>{formatMoney(calcDisplayTotal(p))}</td>
-                                <td>{p.purchaseDate ? formatDate(p.purchaseDate) : '---'}</td>
-                                <td className="actions-cell">
-                                    <button title={t.invoice} className="icon-btn" onClick={() => printInvoice(p)}><FaPrint /></button>
-                                    <button title="WhatsApp" className="icon-btn" onClick={() => sendWhatsApp(p)}><FaWhatsapp /></button>
-                                    <button title="Edit" className="icon-btn" onClick={() => handleEdit(p)}><FaEdit /></button>
-                                    <button title="Delete" className="icon-btn danger" onClick={() => handleDelete(p)}><FaTrash /></button>
-                                </td>
+                {purchases.length === 0 ? (
+                    <div className="no-results">
+                        <p>{t.noPurchasesDetail}</p>
+                    </div>
+                ) : (
+                    <table className="purchases-table">
+                        <thead>
+                            <tr>
+                                {/* <th>{t.invoiceNumber}</th> */}
+                                <th>{t.serial}</th>
+                                <th>{t.product}</th>
+                                <th>{t.type}</th>
+                                <th>{t.supplier}</th>
+                                <th>{t.model}</th>
+                                <th>{t.manufactureYear}</th>
+                                <th>{t.color}</th>
+                                <th>{t.chassisNumber}</th>
+                                <th>{t.condition}</th>
+                                <th>{t.quantity}</th>
+                                <th>{t.price}</th>
+                                <th>{t.shippingCost}</th>
+                                <th>{t.customsFee}</th>
+                                <th>{t.total}</th>
+                                <th>{t.date}</th>
+                                <th>{t.actions}</th>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            {purchases.map((p, idx) => (
+                                <tr key={p.id || p._id}>
+                                    {/* <td>{p.invoiceNumber || (idx + 1)}</td> */}
+                                    <td>{p.serialNumber || '---'}</td>
+                                    <td>{p.productName || '---'}</td>
+                                    <td>{p.type === 'car' ? t.itemCar : t.itemPart}</td>
+                                    <td>{p.supplier || '---'}</td>
+                                    <td>{p.model || '---'}</td>
+                                    <td>{p.manufactureYear || '---'}</td>
+                                    <td>{p.color || '---'}</td>
+                                    <td>{p.chassisNumber || '---'}</td>
+                                    <td>{p.condition ? (p.condition === 'new' ? t.conditionNew : t.conditionUsed) : t.conditionEmpty}</td>
+                                    <td>{p.quantity || 0}</td>
+                                    <td>{formatMoney(p.price)}</td>
+                                    <td>{formatMoney(p.shippingCost || 0)}</td>
+                                    <td>{formatMoney(p.customsFee || 0)}</td>
+                                    <td>{formatMoney(calcDisplayTotal(p))}</td>
+                                    <td>{p.purchaseDate ? formatDate(p.purchaseDate) : '---'}</td>
+                                    <td className="actions-cell">
+                                        <button title={t.invoice} className="icon-btn" onClick={() => printInvoice(p)}><FaPrint /></button>
+                                        <button title="WhatsApp" className="icon-btn" onClick={() => sendWhatsApp(p)}><FaWhatsapp /></button>
+                                        <button title="Edit" className="icon-btn" onClick={() => handleEdit(p)}><FaEdit /></button>
+                                        <button title="Delete" className="icon-btn danger" onClick={() => handleDelete(p)}><FaTrash /></button>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                )}
             </div>
         </div>
     );
 };
 
-// ======= دوال الطباعة والواتساب مع دعم اللغة =======
-function invoiceHtml(p, t, invoiceNumber = 1) {
+// ======= دوال الطباعة والواتساب مع دعم اللغة (محسنة للطباعة: عرض invoiceNumber في التقرير) =======
+function invoiceHtml(p, t) {
     const date = p.purchaseDate ? new Date(p.purchaseDate).toLocaleString('en-GB') : '---';
-    const totalDisplay = (p.price * p.quantity) + (p.shippingCost || 0) + (p.customsFee || 0);
+    const totalDisplay = (Number(p.price || 0) * Number(p.quantity || 0)) + (Number(p.shippingCost || 0) || 0) + (Number(p.customsFee || 0) || 0);
 
     return `
   <html>
@@ -441,16 +598,20 @@ function invoiceHtml(p, t, invoiceNumber = 1) {
       <style>
         body{font-family: Arial; margin:20px; direction:rtl;}
         table{width:100%; border-collapse:collapse; margin-top:20px}
-        th, td{border:1px solid #ddd; padding:10px;}
+        th, td{border:1px solid #ddd; padding:8px; text-align:right}
         th{background:#f4f4f4;}
+        @media print {
+          body{margin:10mm}
+          table{font-size:12px; table-layout:fixed; word-break:break-word}
+        }
       </style>
     </head>
     <body>
       <h2 style="text-align:center">${t.invoice}</h2>
       <table>
-        <tr><th>${t.invoiceNumber}</th><td>${p.invoiceNumber}</td></tr>
+        <tr><th>${t.invoiceNumber}</th><td>${escapeHtml(p.invoiceNumber || '')}</td></tr>
         <tr><th>${t.serial}</th><td>${escapeHtml(p.serialNumber || '')}</td></tr>
-        <tr><th>${t.product}</th><td>${escapeHtml(p.productName)}</td></tr>
+        <tr><th>${t.product}</th><td>${escapeHtml(p.productName || '')}</td></tr>
         <tr><th>${t.type}</th><td>${p.type === 'car' ? t.itemCar : t.itemPart}</td></tr>
         <tr><th>${t.supplier}</th><td>${escapeHtml(p.supplier || '')}</td></tr>
         <tr><th>${t.model}</th><td>${escapeHtml(p.model || '')}</td></tr>
@@ -470,13 +631,15 @@ function invoiceHtml(p, t, invoiceNumber = 1) {
   `;
 }
 
+function reportHtml(purchases, t, summaryText = "") {
+    const rows = purchases.map((p, idx) => {
+        const totalDisplay = (Number(p.price || 0) * Number(p.quantity || 0)) + (Number(p.shippingCost || 0) || 0) + (Number(p.customsFee || 0) || 0);
+        const invoiceNum = p.invoiceNumber || (idx + 1);
 
-function reportHtml(purchases, t) {
-    const rows = purchases.map((p) => {
-        const totalDisplay = (p.price * p.quantity) + (p.shippingCost || 0) + (p.customsFee || 0);
-        
         return `
+        
         <tr>
+          <td>${escapeHtml(invoiceNum)}</td>
           <td>${escapeHtml(p.serialNumber || '')}</td>
           <td>${escapeHtml(p.productName || '')}</td>
           <td>${p.type === 'car' ? t.itemCar : t.itemPart}</td>
@@ -487,7 +650,7 @@ function reportHtml(purchases, t) {
           <td>${escapeHtml(p.chassisNumber || '')}</td>
           <td>${p.condition ? (p.condition === 'new' ? t.conditionNew : t.conditionUsed) : t.conditionEmpty}</td>
           <td>${p.quantity || 0}</td>
-          <td>${p.price}</td>
+          <td>${p.price || 0}</td>
           <td>${p.shippingCost || 0}</td>
           <td>${p.customsFee || 0}</td>
           <td>${totalDisplay}</td>
@@ -500,17 +663,29 @@ function reportHtml(purchases, t) {
       <head>
         <title>${t.title}</title>
         <style>
-          body{font-family:Arial;margin:20px;direction:rtl}
-          table{width:100%;border-collapse:collapse}
-          th,td{border:1px solid #ddd;padding:8px}
+          body{font-family:Arial;margin:10px;direction:rtl}
+          table{width:100%;border-collapse:collapse; font-size:12px;}
+          th,td{border:1px solid #ddd;padding:6px; text-align:right}
           th{background:#f4f4f4}
+          @media print {
+            body{margin:8mm}
+            table{font-size:11px; table-layout:fixed; word-break:break-word}
+            th,td{padding:4px}
+            thead {display:table-header-group}
+            tr {page-break-inside: avoid}
+          }
+                        .summary { margin-bottom:15px; font-size:14px; font-weight:bold; }
+
         </style>
       </head>
       <body>
         <h1 style="text-align:center">${t.title}</h1>
+        
+          ${summaryText ? `<div class="summary">${summaryText}</div>` : ""}
         <table>
           <thead>
             <tr>
+              <th>${t.invoiceNumber}</th>
               <th>${t.serial}</th>
               <th>${t.product}</th>
               <th>${t.type}</th>
@@ -535,7 +710,6 @@ function reportHtml(purchases, t) {
     `;
 }
 
-
 function escapeHtml(str = '') {
     return String(str)
         .replace(/&/g, '&amp;')
@@ -545,7 +719,7 @@ function escapeHtml(str = '') {
 }
 
 function makeWhatsappMessage(p, t) {
-    const totalDisplay = (p.price * p.quantity) + (p.shippingCost || 0) + (p.customsFee || 0);
+    const totalDisplay = (Number(p.price || 0) * Number(p.quantity || 0)) + (Number(p.shippingCost || 0) || 0) + (Number(p.customsFee || 0) || 0);
     return `${t.invoice}\n${t.product}: ${p.productName}\n${t.type}: ${p.type === 'car' ? t.itemCar : t.itemPart}\n${t.supplier}: ${p.supplier}\n${t.quantity}: ${p.quantity}\n${t.price}: ${p.price}\n${t.shippingCost}: ${p.shippingCost || 0}\n${t.customsFee}: ${p.customsFee || 0}\n${t.total}: ${totalDisplay}\n${t.date}: ${p.purchaseDate ? new Date(p.purchaseDate).toLocaleDateString('en-GB') : ''}`;
 }
 
