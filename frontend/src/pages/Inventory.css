@@ -101,15 +101,33 @@ grid-template-columns: repeat(auto-fill, minmax(269px, 1fr));
   background-color: #0056b3;
 }
 
+.filters-info{
+  padding: 13px;
+    font-size: 23px;
+    margin-bottom: 30px;
+    margin-right: 86px;
+}
+
 /* تجاوب مع الموبايل */
 @media (max-width: 600px) {
+  .filters-info{
+    font-size: 15px;
+    text-align: center;
+    margin-right: 0;
+  }
   .inventory-cards {
     display: grid;
-    grid-template-columns: repeat(2,1fr);
+    grid-template-columns: repeat(2, 1fr);
+        padding: 0px 22px;
+  }
+  .card{
+        padding: 5px;
+        font-size: 12px;
   }
   .inventory-grid{
     grid-template-columns: repeat(2,1fr);
     gap: 5px;
+            padding: 0 12px;
   }
   .filters {
     flex-direction: column-reverse;
@@ -125,6 +143,7 @@ grid-template-columns: repeat(auto-fill, minmax(269px, 1fr));
 }
 .inventory-item {
     background-color: #f9f9f9;
+           border: 1px solid #0000ff52; 
     padding: 9px;
     border-radius: 10px;
     box-shadow: 0 0 5px rgba(0, 0, 0, 0.193);
