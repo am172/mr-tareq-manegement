@@ -13,7 +13,7 @@ const translations = {
     parts: 'قطع الغيار',
     product: 'اسم المنتج',
     item: 'عنصر',
-    searchPlaceholder: 'ابحث عن منتج...',
+    searchPlaceholder: 'ابحث بالاسم ...',
     all: 'الكل',
     allSuppliers: 'كل الموردين',
     printInventory: 'طباعة المخزن بالكامل',
