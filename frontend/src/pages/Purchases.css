@@ -107,25 +107,37 @@ body {
 }
 
 /* Table */
-.table-wrap{
-   overflow-x: auto;
-      scrollbar-color: #007bff #f1f1f1;
-    scrollbar-width: auto;
-  background: #fff;
-  border-radius:10px;
-  padding:6px;
-  border:1px solid #eef2f6;
+/* Purchases.css */
+
+/* اللف الجدول بسكرول */
+.table-wrap {
+  width: 100%;
+  overflow-x: auto; /* سكرول أفقي */
+  border: 1px solid #ddd;
+  border-radius: 6px;
 }
+
+/* تخصيص شكل السكرول */
 .table-wrap::-webkit-scrollbar {
-  height: 8px;
+  height: 8px; /* ارتفاع السكرول الأفقي */
 }
-.table-wrap::-webkit-scrollbar-track {
-  background: #f1f1f1;
-}
+
 .table-wrap::-webkit-scrollbar-thumb {
-  background: blue;
+  background: #007bff; /* اللون الأزرق */
   border-radius: 4px;
 }
+
+.table-wrap::-webkit-scrollbar-track {
+  background: #f1f1f1; /* خلفية فاتحة */
+}
+
+
+/* للمتصفحات اللي بتدعم scrollbar-color */
+.table-wrap {
+  scrollbar-color: #007bff #f1f1f1; /* thumb color | track color */
+  scrollbar-width: thin;
+}
+
 
 .purchases-table{
   width:100%;
@@ -265,7 +277,7 @@ body {
 .filter-summary { 
   margin:8px 0 12px;
   text-align: center;
-  font-size: 22px;
+  font-size: 26px;
  }
 
-.filter-summary small { color:#333; background:#f7f7f7; padding:6px 8px; border-radius:4px; }
+.filter-summary small { color:#000000; background:#f4a4a4; padding:6px 8px; border-radius:4px; }
