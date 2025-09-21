@@ -6,45 +6,51 @@ const Product = require('../models/Product');
 const Supplier = require('../models/Supplier'); // ✅ استدعاء المورد
 const router = express.Router();
 
-// ✅ Get all purchases with filters
+// routes/purchases.js
 router.get('/', auth, async (req, res) => {
   try {
-    const { period, type, supplier } = req.query;
+    const { period, type, supplier, date, month, year, from, to } = req.query;
     let filter = {};
 
-    // فلتر الفترة الزمنية
-    if (period && period !== 'all') {
-      const now = new Date();
-      let startDate;
-
-      if (period === 'daily') {
-        startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-      } else if (period === 'weekly') {
-        startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-      } else if (period === 'monthly') {
-        startDate = new Date(now.getFullYear(), now.getMonth(), 1);
-      }
-
-      filter.purchaseDate = { $gte: startDate };
+    // ✅ فلتر المورد
+    if (supplier && supplier !== 'all') {
+      filter.supplier = supplier; // لازم يكون نفس اللي متخزن في قاعدة البيانات
     }
 
     // ✅ فلتر النوع
     if (type && type !== 'all') {
-      filter.type = type; // "car" أو "part"
+      filter.type = type;
     }
 
-    // ✅ فلتر المورد
-    if (supplier && supplier !== 'all') {
-      filter.supplier = supplier;
+    // ✅ فلتر الفترة
+    if (period && period !== 'all') {
+      const now = new Date();
+      if (period === 'daily' && date) {
+        const d = new Date(date);
+        filter.purchaseDate = {
+          $gte: new Date(d.setHours(0, 0, 0, 0)),
+          $lte: new Date(d.setHours(23, 59, 59, 999)),
+        };
+      } else if (period === 'monthly' && month && year) {
+        const start = new Date(year, month - 1, 1);
+        const end = new Date(year, month, 0, 23, 59, 59, 999);
+        filter.purchaseDate = { $gte: start, $lte: end };
+      } else if (period === 'custom' && from && to) {
+        filter.purchaseDate = {
+          $gte: new Date(new Date(from).setHours(0, 0, 0, 0)),
+          $lte: new Date(new Date(to).setHours(23, 59, 59, 999)),
+        };
+      }
     }
 
-    const purchases = await Purchase.find(filter).sort({ purchaseDate: -1 });
+    const purchases = await Purchase.find(filter);
     res.json(purchases);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'خطأ في الخادم' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server Error' });
   }
 });
+
 
 
 // routes/purchases.js
