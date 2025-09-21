@@ -52,6 +52,7 @@ function Sidebar({ isOpen, toggleSidebar }) {
     reports: { ar: 'التقارير', en: 'Reports', zh: '报告' },
     employees: { ar: 'الموظفين', en: 'Employees', zh: '员工' },
   };
+
   const menuItems = [
     { path: '/inventory', label: labels.inventory[language], icon: <FaBox />, permission: 'inventory' },
     { path: '/purchases', label: labels.purchases[language], icon: <FaShoppingCart />, permission: 'purchases' },
@@ -65,6 +66,33 @@ function Sidebar({ isOpen, toggleSidebar }) {
     <div className={`sidebar ${isOpen ? 'open' : ''}`}>
       <button className="close-btn" onClick={toggleSidebar}>×</button>
 
+      {/* ✅ عرض المستخدم فوق السايدر */}
+      {user && (
+        <div className="user-info" style={{ textAlign: 'center', marginBottom: '20px' }}>
+          <div className='user-info-div'
+            style={{
+              width: '60px',
+              height: '60px',
+              borderRadius: '50%',
+              background: '#2563eb',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              margin: '0 auto 10px',
+              color: '#fff',
+              fontSize: '24px',
+              fontWeight: 'bold',
+              marginTop: '20px'
+            }}
+          >
+            {user.username?.charAt(0).toUpperCase()}
+          </div>
+          <p style={{ margin: 0, fontWeight: 'bold', fontSize: '16px' }}>
+            {user.username}
+          </p>
+        </div>
+
+      )}
       <nav>
         <ul>
           {menuItems.map((item) => {
@@ -83,27 +111,13 @@ function Sidebar({ isOpen, toggleSidebar }) {
           <hr />
 
           <li>
-            <button onClick={handleLogout} className="logout-btn">
-              <span className="text">{language === 'ar' ? 'تسجيل خروج' : language === 'zh' ? '退出登录' : 'Logout'}</span>
-              <FaSignOutAlt className="icon" />
-            </button>
+
           </li>
         </ul>
       </nav>
-
-      <div className="language-selector">
-        <label>{language === 'ar' ? 'اللغة:' : language === 'zh' ? '语言:' : 'Language:'}</label>
-        <select value={language} onChange={e => setLanguage(e.target.value)}>
-          <option value="ar">العربية</option>
-          <option value="en">English</option>
-          <option value="zh">中文</option>
-        </select>
-      </div>
-      <hr />
-
       {/* 💰 زر تغيير العملة */}
-      <div className="currency-section" style={{ marginTop: '20px', textAlign: 'center' }}>
-        <p style={{ fontSize: '14px', marginBottom: '8px', padding: '0 10px' }}>
+      <div className="currency-section" style={{ marginTop: '2px', textAlign: 'center', borderBottom:'.3px solid' }}>
+        <p style={{ fontSize: '16px', marginBottom: '8px', padding: '0 10px' }}>
           {language === 'ar' ? 'العملة الرسمية للموقع هي الدرهم الإماراتي، لتغيير العملة اضغط هنا' :
             language === 'zh' ? '网站官方货币为阿联酋迪拉姆，要更改货币请点击此处' :
               'The official currency of the site is UAE Dirham, click here to change'}
@@ -114,11 +128,36 @@ function Sidebar({ isOpen, toggleSidebar }) {
           target="_blank"
           rel="noopener noreferrer"
         >
-          <button style={{ padding: '8px 12px', borderRadius: '6px', background: '#2563eb', color: '#fff', border: 'none', cursor: 'pointer' }}>
+          <button style={{ padding: '8px 12px', borderRadius: '6px', background: '#2563eb', color: '#fff', border: 'none', cursor: 'pointer',margin: '0 auto', }}>
             {language === 'ar' ? 'تغيير العملة' : language === 'zh' ? '更改货币' : 'Change Currency'}
           </button>
         </a>
       </div>
+      <div className="settings" style={{textAlign:"center", marginBottom:'10px'}}>
+
+
+        {/* LANGUAGE */}
+        <div className="language-selector">
+          {/* <label>{language === 'ar' ? 'اللغة:' : language === 'zh' ? '语言:' : 'Language:'}</label> */}
+          <select value={language} onChange={e => setLanguage(e.target.value)}>
+            <option value="ar">العربية</option>
+            <option value="en">English</option>
+            <option value="zh">中文</option>
+          </select>
+        </div>
+
+
+        {/* LOGOUT */}
+        <button onClick={handleLogout} className="logout-btn">
+          <span className="text">
+            {language === 'ar' ? 'تسجيل خروج' : language === 'zh' ? '退出登录' : 'Logout'}
+          </span>
+          <FaSignOutAlt className="icon" />
+        </button>
+      </div>
+
+
+
     </div>
   );
 }
