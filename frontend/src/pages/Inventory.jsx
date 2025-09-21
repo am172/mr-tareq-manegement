@@ -28,7 +28,17 @@ const translations = {
     deleteFinalConfirm: 'هذه عملية حذف نهائية، هل تريد الاستمرار؟',
     deleteSuccess: 'تم حذف المنتج بنجاح',
     deleteError: 'حدث خطأ أثناء حذف المنتج',
-    copySuccess: 'تم نسخ الرسالة للواتساب'
+    copySuccess: 'تم نسخ الرسالة للواتساب',
+    resultsFor: (type, supplier) => {
+      const typeText = type === 'all' ? 'المنتجات' : type === 'car' ? 'السيارات' : 'قطع الغيار';
+      const supplierText = supplier === 'all' ? 'من جميع الموردين' : `من المورد "${supplier}"`;
+      return `عرض ${typeText} ${supplierText}`;
+    },
+    noResults: (type, supplier) => {
+      const typeText = type === 'all' ? 'منتجات' : type === 'car' ? 'سيارات' : 'قطع غيار';
+      const supplierText = supplier === 'all' ? 'من جميع الموردين' : `من المورد "${supplier}"`;
+      return `للأسف لا توجد ${typeText} ${supplierText}`;
+    }
   },
   en: {
     title: 'Inventory',
@@ -51,7 +61,17 @@ const translations = {
     deleteFinalConfirm: 'This is a final delete operation. Continue?',
     deleteSuccess: 'Product deleted successfully',
     deleteError: 'Error deleting product',
-    copySuccess: 'Message copied for WhatsApp'
+    copySuccess: 'Message copied for WhatsApp',
+    resultsFor: (type, supplier) => {
+      const typeText = type === 'all' ? 'products' : type === 'car' ? 'cars' : 'parts';
+      const supplierText = supplier === 'all' ? 'from all suppliers' : `from supplier "${supplier}"`;
+      return `Showing ${typeText} ${supplierText}`;
+    },
+    noResults: (type, supplier) => {
+      const typeText = type === 'all' ? 'products' : type === 'car' ? 'cars' : 'parts';
+      const supplierText = supplier === 'all' ? 'from all suppliers' : `from supplier "${supplier}"`;
+      return `Unfortunately, no ${typeText} ${supplierText}`;
+    }
   },
   zh: {
     title: '库存',
@@ -75,7 +95,18 @@ const translations = {
     deleteError: '删除产品时出错',
     copySuccess: '消息已复制到WhatsApp',
     product: '产品名称',
+    resultsFor: (type, supplier) => {
+      const typeText = type === 'all' ? '所有产品' : type === 'car' ? '汽车' : '零件';
+      const supplierText = supplier === 'all' ? '来自所有供应商' : `来自供应商 "${supplier}"`;
+      return `正在显示 ${typeText} ${supplierText}`;
+    },
+    noResults: (type, supplier) => {
+      const typeText = type === 'all' ? '产品' : type === 'car' ? '汽车' : '零件';
+      const supplierText = supplier === 'all' ? '来自所有供应商' : `来自供应商 "${supplier}"`;
+      return `很遗憾，没有 ${typeText} ${supplierText}`;
+    }
   }
+
 };
 
 const Inventory = () => {
@@ -158,7 +189,9 @@ const Inventory = () => {
   };
 
   const printReport = () => {
-    const html = reportHtml(inventory, t);
+    // ✅ خليه يطبع بس المنتجات اللي كميتها > 0
+    const validItems = inventory.filter(item => Number(item.quantity) > 0);
+    const html = reportHtml(validItems, t);
     const w = window.open('', '_blank', 'width=1100,height=800');
     w.document.write(html);
     w.document.close();
@@ -168,6 +201,7 @@ const Inventory = () => {
       toast.success(t.report);
     }, 500);
   };
+
 
   const sendWhatsApp = (item) => {
     const msg = makeWhatsappMessage(item, t);
@@ -226,6 +260,19 @@ const Inventory = () => {
 
         <button className="btn-primary" onClick={printReport}>{t.printInventory}</button>
       </div>
+      {/* نص يوضح الفلاتر */}
+      <div className="filters-info">
+        {filteredInventory.length > 0 ? (
+          <p>
+            {t.resultsFor(filterType, filterSupplier)}
+          </p>
+        ) : (
+          <p style={{ color: 'red' }}>
+            {t.noResults(filterType, filterSupplier)}
+          </p>
+        )}
+      </div>
+
 
       <div className="inventory-grid">
         {filteredInventory.map(item => (
