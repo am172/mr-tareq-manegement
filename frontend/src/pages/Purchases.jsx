@@ -323,8 +323,9 @@ const Purchases = () => {
 
     return (
         <div className="purchases-page">
+            <h1>{t.title}</h1>
             <header className="purchases-header">
-                <h1>{t.title}</h1>
+                
                 <div className="btn-group">
                     <button className="btn btn-primary" onClick={openNewForm}>{t.addPurchase}</button>
                     <button className="btn btn-secondary" onClick={printReport}>{t.printReport}</button>
