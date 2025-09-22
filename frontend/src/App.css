@@ -437,7 +437,7 @@ display: flex
 }
 .table-wrap {
   width: 100%;
-  overflow-x: auto; /* سكرول أفقي */
+  overflow-x: scroll; /* سكرول أفقي */
   border: 1px solid #ddd;
   border-radius: 6px;
 }
@@ -461,4 +461,6 @@ display: flex
 .table-wrap {
   scrollbar-color: #007bff #f1f1f1; /* thumb color | track color */
   scrollbar-width: thin;
+    scrollbar-gutter: stable; /* ✅ يسيب مكان للسكرول حتى لو مش ظاهر */
+
 }
