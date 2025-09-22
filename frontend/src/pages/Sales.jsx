@@ -21,9 +21,12 @@ const translations = {
     actions: 'العمليات',
     invoice: 'فاتورة بيع / عقد بيع سيارات',
     searchPlaceholder: 'بحث باسم المنتج أو المشتري',
-    monthFilter: 'تصفية بالشهر',
-    periodFilter: 'تصفية بالمدة',
+    monthFilter: 'عرض',
+    monthFilterDesc: 'فلترة المبيعات حسب الشهر',
+    periodFilter: 'عرض',
+    periodFilterDesc: 'فلترة المبيعات حسب فترة زمنية',
     printReport: 'طباعة تقرير شامل',
+    noProducts: 'لا توجد منتجات مطابقة لبحثك ❌',
     confirmDelete: 'هل أنت متأكد أنك تريد الحذف؟',
     finalConfirm: 'هل أنت متأكد نهائيًا من الحذف؟',
     deleted: 'تم الحذف بنجاح ✅',
@@ -37,6 +40,7 @@ const translations = {
     conditionNew: 'جديد',
     conditionUsed: 'مستعمل',
     serial: 'الرقم التسلسلي',
+    invoiceNumber: 'رقم الفاتورة',
     type: 'النوع',
     supplier: 'المورد',
     model: 'الموديل',
@@ -60,9 +64,12 @@ const translations = {
     actions: 'Actions',
     invoice: 'Sales Invoice / Car Sales Agreement',
     searchPlaceholder: 'Search by product or buyer',
-    monthFilter: 'Filter by month',
-    periodFilter: 'Filter by period',
+    monthFilter: 'Show',
+    monthFilterDesc: 'Filter sales by month',
+    periodFilter: 'Show',
+    periodFilterDesc: 'Filter sales by period',
     printReport: 'Print Full Report',
+    noProducts: 'No matching products found ❌',
     confirmDelete: 'Are you sure you want to delete?',
     finalConfirm: 'Are you absolutely sure?',
     deleted: 'Deleted successfully ✅',
@@ -76,6 +83,7 @@ const translations = {
     conditionNew: 'New',
     conditionUsed: 'Used',
     serial: 'Serial',
+    invoiceNumber: 'Invoice Number',
     type: 'Type',
     supplier: 'Supplier',
     model: 'Model',
@@ -99,9 +107,12 @@ const translations = {
     actions: '操作',
     invoice: '销售发票 / 汽车销售协议',
     searchPlaceholder: '按产品或买家搜索',
-    monthFilter: '按月份筛选',
-    periodFilter: '按期间筛选',
+    monthFilter: '显示',
+    monthFilterDesc: '按月份筛选销售',
+    periodFilter: '显示',
+    periodFilterDesc: '按时间段筛选销售',
     printReport: '打印完整报告',
+    noProducts: '未找到匹配的产品 ❌',
     confirmDelete: '您确定要删除吗？',
     finalConfirm: '您确定要永久删除吗？',
     deleted: '删除成功 ✅',
@@ -115,6 +126,7 @@ const translations = {
     conditionNew: '新的',
     conditionUsed: '二手的',
     serial: '序列号',
+    invoiceNumber: '发票号码',
     type: '类型',
     supplier: '供应商',
     model: '型号',
@@ -136,6 +148,7 @@ const Sales = () => {
   const [monthFilter, setMonthFilter] = useState('');
   const [periodFilter, setPeriodFilter] = useState({ start: '', end: '' });
   const { language } = useLanguage();
+  const [filterDescription, setFilterDescription] = useState('');
 
   const t = translations[language];
 
@@ -149,6 +162,34 @@ const Sales = () => {
       setSales(res.data);
     } catch (err) {
       console.error(err);
+    }
+  };
+
+
+  // فلتر الشهر
+  const handleMonthFilter = () => {
+    if (monthFilter) {
+      // تصفير فلتر الفترة
+      setPeriodFilter({ start: '', end: '' });
+
+      const [year, month] = monthFilter.split('-');
+      fetchSales({ month, year });
+
+      // الجملة الوصفية
+      setFilterDescription(`المبيعات خلال شهر ${month} - ${year}`);
+    }
+  };
+
+  // فلتر الفترة
+  const handlePeriodFilter = () => {
+    if (periodFilter.start && periodFilter.end) {
+      // تصفير فلتر الشهر
+      setMonthFilter('');
+
+      fetchSales({ startDate: periodFilter.start, endDate: periodFilter.end });
+
+      // الجملة الوصفية
+      setFilterDescription(`المبيعات من ${periodFilter.start} إلى ${periodFilter.end}`);
     }
   };
 
@@ -193,25 +234,9 @@ const Sales = () => {
     );
   };
 
-  // const handleFormClose = (success, isEdit = false) => {
-  //   setShowForm(false);
-  //   if (success) {
-  //     fetchSales();
-  //     if (isEdit) {
-  //       toast.success(t.updated);
-  //     } else {
-  //       toast.success(t.added);
-  //     }
-  //   } else if (success === false) {
-  //     if (isEdit) {
-  //       toast.error(t.updateError);
-  //     } else {
-  //       toast.error(t.addError);
-  //     }
-  //   }
-  // };
   const handlePrintInvoice = (sale) => {
     const printContent = `
+
 <!DOCTYPE html>
 <html lang="${language}">
 <head>
@@ -277,44 +302,44 @@ const Sales = () => {
           7- This agreement is governed by the laws of the Emirate of Dubai and the United Arab Emirates.</p>
           <h3>ملحق توصيف السيارات / Car Specification Annex</h3>
   <table class="invoice-table">
-            <thead>
-              <tr>
-                <th>رقم<br>No.</th>
-                <th>الرقم التسلسلي<br>serial number</th>
-                <th>النوع<br>Type</th>
-                <th>الموديل<br>Model</th>
-                <th>سنة الصنع<br>Year</th>
-                <th>اللون<br>Color</th>
-                <th>رقم الشاسيه<br>Chassis No.</th>
-                <th>الحالة<br>Condition</th>
-                <th>الكمية<br>quantity</th>
-                <th>السعر<br>Price</th>
-                <th>الاجمالي<br>Total</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>${sale.invoiceNumber || ''}</td>
-                <td>${sale.serialNumber || ''}</td>
-                <td>${sale.productName}</td>
-                <td>${sale.model || ''}</td>
-                <td>${sale.manufactureYear || ''}</td>
-                <td>${sale.color || ''}</td>
-                <td>${sale.chassisNumber || ''}</td>
-                <td>${sale.condition === 'new' ? t.conditionNew : t.conditionUsed}</td>
-                <td>${sale.quantity || ''}</td>
-                <td>${sale.price || ''}</td>
-                <td>${sale.total}</td>
-              </tr>
-            </tbody>
-          </table>
+    <thead>
+      <tr>
+        <th>${t.invoiceNumber}</th>
+        <th>${t.serial}</th>
+        <th>${t.product}</th>
+        <th>${t.model}</th>
+        <th>${t.year}</th>
+        <th>${t.color}</th>
+        <th>${t.chassis}</th>
+        <th>${t.condition}</th>
+        <th>${t.quantity}</th>
+        <th>${t.price}</th>
+        <th>${t.total}</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>${sale.invoiceNumber || ''}</td>
+        <td>${sale.serialNumber || ''}</td>
+        <td>${sale.productName}</td>
+        <td>${sale.model || ''}</td>
+        <td>${sale.manufactureYear || ''}</td>
+        <td>${sale.color || ''}</td>
+        <td>${sale.chassisNumber || ''}</td>
+        <td>${sale.condition === 'new' ? t.conditionNew : t.conditionUsed}</td>
+        <td>${sale.quantity || ''}</td>
+        <td>${sale.price || ''}</td>
+        <td>${sale.total}</td>
+      </tr>
+    </tbody>
+  </table>
 
-          <div class="signatures">
-            <p>توقيع البائع: ____________<br>Seller’s Signature: ____________</p>
-            <p>توقيع المشتري: ____________<br>Buyer’s Signature: ____________</p>
-          </div>
-        </body>
-      </html>
+  <div class="signatures">
+    <p>توقيع البائع: ____________<br>Seller’s Signature: ____________</p>
+    <p>توقيع المشتري: ____________<br>Buyer’s Signature: ____________</p>
+  </div>
+</body>
+</html>
     `;
     const newWindow = window.open('', '', 'width=900,height=700');
     newWindow.document.write(printContent);
@@ -324,8 +349,8 @@ const Sales = () => {
 
   const handlePrintReport = () => {
     const table = document.querySelector('.sales-table').cloneNode(true);
-    Array.from(table.querySelectorAll('tr')).forEach(row => row.deleteCell(-1)); // إزالة عمود العمليات
-    table.classList.add('invoice-table'); // إضافة CSS مخصص
+    Array.from(table.querySelectorAll('tr')).forEach(row => row.deleteCell(-1));
+    table.classList.add('invoice-table');
 
     const printContent = `
 <!DOCTYPE html>
@@ -334,22 +359,9 @@ const Sales = () => {
 <meta charset="UTF-8">
 <title>${t.title}</title>
 <style>
-  body.report-print { 
-    font-family: Arial; 
-    direction: ${language === 'ar' ? 'rtl' : 'ltr'}; 
-    padding: 20px; 
-  }
-  table.invoice-table { 
-    width: 100%; 
-    border-collapse: collapse; 
-    table-layout: fixed; 
-  }
-  table.invoice-table th, table.invoice-table td { 
-    border: 1px solid #000; 
-    font-size:14px;
-    text-align: center; 
-    word-wrap: break-word; 
-  }
+  body.report-print { font-family: Arial; direction: ${language === 'ar' ? 'rtl' : 'ltr'}; padding: 20px; }
+  table.invoice-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+  table.invoice-table th, table.invoice-table td { border: 1px solid #000; font-size:14px; text-align: center; word-wrap: break-word; }
   table.invoice-table th { background: #eee; }
   tr { height: 28px; }
   h2 { text-align: center; margin-bottom: 10px; }
@@ -368,7 +380,6 @@ const Sales = () => {
     newWindow.focus();
     newWindow.print();
   };
-
 
   const handleWhatsApp = (sale) => {
     const message = `${t.invoice}:
@@ -402,25 +413,52 @@ ${t.total}: ${sale.total}`;
           onClose={() => { setShowForm(false); fetchSales(); }}
         />
       )}
-
       <div className="filters">
-        <input type="month" value={monthFilter} onChange={e => setMonthFilter(e.target.value)} />
-        <button onClick={() => fetchSales({ month: monthFilter.split('-')[1], year: monthFilter.split('-')[0] })}>{t.monthFilter}</button>
+        <div>
+          <input
+            type="month"
+            value={monthFilter}
+            onChange={e => setMonthFilter(e.target.value)}
+          />
+          <button onClick={handleMonthFilter}>{t.monthFilter}</button>
+          <p>{t.monthFilterDesc}</p>
+        </div>
 
-        <input type="date" value={periodFilter.start} onChange={e => setPeriodFilter({ ...periodFilter, start: e.target.value })} />
-        <input type="date" value={periodFilter.end} onChange={e => setPeriodFilter({ ...periodFilter, end: e.target.value })} />
-        <button onClick={() => fetchSales({ startDate: periodFilter.start, endDate: periodFilter.end })}>{t.periodFilter}</button>
+        <div>
+          <input
+            type="date"
+            value={periodFilter.start}
+            onChange={e => setPeriodFilter({ ...periodFilter, start: e.target.value })}
+          />
+          <input
+            type="date"
+            value={periodFilter.end}
+            onChange={e => setPeriodFilter({ ...periodFilter, end: e.target.value })}
+          />
+          <button onClick={handlePeriodFilter}>{t.periodFilter}</button>
+          <p>{t.periodFilterDesc}</p>
+        </div>
 
         <button onClick={handlePrintReport}>{t.printReport}</button>
       </div>
 
-      <div className="search-bar">
+      {/* ✅ الجملة الوصفية تحت الفلاتر */}
+      {filterDescription && (
+        <div className="filter-description">
+          <strong>{filterDescription}</strong>
+        </div>
+      )}
+
+
+      {/* <div className="search-bar">
         <input type="text" placeholder={t.searchPlaceholder} value={search} onChange={e => setSearch(e.target.value)} />
-      </div>
+      </div> */}
+
       <div className="table-wrapper">
         <table className="sales-table">
           <thead>
             <tr>
+              {/* <th>{t.invoiceNumber}</th> */}
               <th>{t.serial}</th>
               <th>{t.product}</th>
               <th>{t.type}</th>
@@ -441,31 +479,38 @@ ${t.total}: ${sale.total}`;
           </thead>
 
           <tbody>
-            {filteredSales.map(s => (
-              <tr key={s._id}>
-                <td>{s.serialNumber}</td>
-                <td>{s.productName}</td>
-                <td>{s.type === 'car' ? t.itemCar : t.itemPart}</td>
-                <td>{s.supplier}</td>
-                <td>{s.model}</td>
-                <td>{s.manufactureYear}</td>
-                <td>{s.color}</td>
-                <td>{s.chassisNumber}</td>
-                <td>{s.condition === 'new' ? t.conditionNew : t.conditionUsed}</td>
-                <td>{s.buyer}</td>
-                <td>{s.quantity}</td>
-                <td>{s.price}</td>
-                <td>{s.discount || 0}%</td>
-                <td>{s.total}</td>
-                <td>{new Date(s.date).toLocaleDateString('en-GB')}</td>
-                <td className='actions-cell'>
-                  <button onClick={() => handlePrintInvoice(s)}><FaPrint /></button>
-                  <button onClick={() => handleWhatsApp(s)}><FaWhatsapp /></button>
-                  <button onClick={() => { setEditSale(s); setShowForm(true); }}><FaEdit /></button>
-                  <button onClick={() => handleDelete(s._id)}><FaTrash /></button>
-                </td>
+            {filteredSales.length > 0 ? (
+              filteredSales.map(s => (
+                <tr key={s._id}>
+                  {/* <td>{s.invoiceNumber}</td> */}
+                  <td>{s.serialNumber}</td>
+                  <td>{s.productName}</td>
+                  <td>{s.type === 'car' ? t.itemCar : t.itemPart}</td>
+                  <td>{s.supplier}</td>
+                  <td>{s.model}</td>
+                  <td>{s.manufactureYear}</td>
+                  <td>{s.color}</td>
+                  <td>{s.chassisNumber}</td>
+                  <td>{s.condition === 'new' ? t.conditionNew : t.conditionUsed}</td>
+                  <td>{s.buyer}</td>
+                  <td>{s.quantity}</td>
+                  <td>{s.price}</td>
+                  <td>{s.discount || 0}%</td>
+                  <td>{s.total}</td>
+                  <td>{new Date(s.date).toLocaleDateString('en-GB')}</td>
+                  <td className='actions-cell'>
+                    <button onClick={() => handlePrintInvoice(s)}><FaPrint /></button>
+                    <button onClick={() => handleWhatsApp(s)}><FaWhatsapp /></button>
+                    <button onClick={() => { setEditSale(s); setShowForm(true); }}><FaEdit /></button>
+                    <button onClick={() => handleDelete(s._id)}><FaTrash /></button>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="17" style={{ textAlign: 'center', padding: '20px' }}>{t.noProducts}</td>
               </tr>
-            ))}
+            )}
           </tbody>
 
         </table>
