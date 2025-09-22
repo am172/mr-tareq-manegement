@@ -51,26 +51,27 @@ function Header() {
         </div>
       )}
 
-        {/* ✅ تغيير اللغة */}
-        <div className="header-language">
-          <select value={language} onChange={e => setLanguage(e.target.value)}>
-            <option value="ar">العربية</option>
-            <option value="en">English</option>
-            <option value="zh">中文</option>
-          </select>
-        </div>
-
-
+      {/* ✅ تغيير اللغة */}
+      <div className="header-language">
+        <select value={language} onChange={e => setLanguage(e.target.value)}>
+          <option value="ar">العربية</option>
+          <option value="en">English</option>
+          <option value="zh">中文</option>
+        </select>
       </div>
+
+
+    </div>
 
   );
 }
 
 /** ✅ السايدر */
 function Sidebar({ isOpen, toggleSidebar }) {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();   // ✅ زودنا logout
   const { language } = useLanguage();
   const location = useLocation();
+  const navigate = useNavigate();       // ✅ عرفنا navigate هنا
 
   const labels = {
     inventory: { ar: 'المخزون', en: 'Inventory', zh: '库存' },
@@ -98,7 +99,7 @@ function Sidebar({ isOpen, toggleSidebar }) {
     <div className={`sidebar ${isOpen ? 'open' : ''}`}>
       <button className="close-btn" onClick={toggleSidebar}>×</button>
 
-      <nav style={{marginTop:"31px"}}>
+      <nav style={{ marginTop: "68px;" }}>
         <ul>
           {menuItems.map((item) => {
             if (item.adminOnly && user?.role !== 'admin') return null;
