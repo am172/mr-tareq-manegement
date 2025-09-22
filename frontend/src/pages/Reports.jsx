@@ -8,6 +8,7 @@ import { useLanguage } from '../context/LanguageContext';
 const translations = {
     ar: {
         title: "التقارير المالية",
+        taq: "تقرير",
         daily: "يومي",
         monthly: "شهري",
         custom: "مخصص",
@@ -19,7 +20,7 @@ const translations = {
         totalExpenses: "إجمالي المصروفات",
         netProfit: "صافي الربح",
         details: "التفاصيل",
-         sales: "تفاصيل المبيعات",
+        sales: "تفاصيل المبيعات",
         purchases: "تفاصيل المشتريات",
         expenses: "تفاصيل المصروفات",
         product: "المنتج",
@@ -47,7 +48,10 @@ const translations = {
         purchasesReport: "تقرير المشتريات",
         expensesReport: "تقرير المصروفات",
         cars: "سيارات",
-        parts: "قطع غيار"
+        parts: "قطع غيار",
+        detailsShow: "عرض التفاصيل",
+        detailsHide: "إخفاء التفاصيل",
+        ribh: " الأرباح 💰"
     },
     en: {
         title: "Financial Reports",
@@ -90,9 +94,15 @@ const translations = {
         purchasesReport: "Purchases Report",
         expensesReport: "Expenses Report",
         cars: "Cars",
-        parts: "Parts"
+        parts: "Parts",
+        detailsShow: "Show Details",
+        detailsHide: "Hide Details",
+        ribh: " profit 💰"
+
     },
     zh: {
+        
+         ribh: " 利润 💰",
         title: "财务报告",
         daily: "每日",
         monthly: "每月",
@@ -133,7 +143,10 @@ const translations = {
         purchasesReport: "采购报告",
         expensesReport: "支出报告",
         cars: "汽车",
-        parts: "零件"
+        parts: "零件",
+        detailsShow: "显示详情",
+        detailsHide: "隐藏详情",
+
     }
 };
 
@@ -178,8 +191,8 @@ export default function Reports() {
                 return;
             }
 
-            const res = await axios.get("https://mr-tareq-manegement-backend.onrender.com/api/reports", { params });
-               setReport(res.data);
+            const res = await axios.get("http://localhost:5000/api/reports", { params });
+            setReport(res.data);
         } catch (err) {
             console.error("Error fetching report:", err);
             setReport(null);
@@ -234,7 +247,9 @@ export default function Reports() {
     return (
         <div className="page">
             <h1>{t.title}</h1>
-
+            <h3 style={{ textAlign: "center", marginBottom: "10px" }}>
+                {getFilterDescription()}
+            </h3>
             {/* ✅ الفلاتر */}
             <div className="filters">
                 <select value={filterType} onChange={(e) => setFilterType(e.target.value)}>
@@ -282,13 +297,14 @@ export default function Reports() {
                     {report && (
                         <div id="reportContent">
 
-                            <h3 style={{ textAlign: "center", marginBottom: "10px" }}>
-                                {getFilterDescription()}
-                            </h3>
+
                             {/* ✅ الملخص */}
-                            <div className="tables">
+                            <div className="summary">
                                 <h2>{t.summary}</h2>
                                 <p>{t.profitDesc}</p>
+                            </div>
+                            <div className="tables">
+
                                 <table className="summary-table">
                                     <tbody>
                                         <tr>
@@ -296,7 +312,7 @@ export default function Reports() {
                                             <td>{report.summary.sales}</td>
                                             <td>
                                                 <button style={{ background: '#1668dc', color: 'white' }} onClick={() => setShowSalesDetails(!showSalesDetails)}>
-                                                    {showSalesDetails ? "إخفاء التفاصيل" : "عرض التفاصيل"}
+                                                    {showSalesDetails ? t.detailsHide : t.detailsShow}
                                                 </button>
                                             </td>
                                         </tr>
@@ -335,7 +351,7 @@ export default function Reports() {
                                             <td>{report.summary.purchases}</td>
                                             <td>
                                                 <button style={{ background: '#1668dc', color: 'white' }} onClick={() => setShowPurchasesDetails(!showPurchasesDetails)}>
-                                                    {showPurchasesDetails ? "إخفاء التفاصيل" : "عرض التفاصيل"}
+                                                    {showPurchasesDetails ? t.detailsHide : t.detailsShow}
                                                 </button>
                                             </td>
                                         </tr>
@@ -385,7 +401,7 @@ export default function Reports() {
 
                                         {/* 📌 الأرباح (المبيعات - المشتريات) */}
                                         <tr>
-                                            <td>💰 الأرباح</td>
+                                            <td>{t.ribh}</td>
                                             <td><strong>{report.summary.sales - report.summary.purchases}</strong></td>
                                         </tr>
 
@@ -394,7 +410,7 @@ export default function Reports() {
                                             <td>{report.summary.expenses}</td>
                                             <td>
                                                 <button style={{ background: '#1668dc', color: 'white' }} onClick={() => setShowExpensesDetails(!showExpensesDetails)}>
-                                                    {showExpensesDetails ? "إخفاء التفاصيل" : "عرض التفاصيل"}
+                                                    {showExpensesDetails ? t.detailsHide : t.detailsShow}
                                                 </button>
                                             </td>
                                         </tr>
