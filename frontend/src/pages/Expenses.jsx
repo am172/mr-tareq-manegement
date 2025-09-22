@@ -17,10 +17,13 @@ const translations = {
         actions: 'العمليات',
         printInvoice: 'فاتورة مصروف',
         searchPlaceholder: 'بحث باسم المصروف أو التصنيف',
-        monthFilter: 'تصفية بالشهر',
-        periodFilter: 'تصفية بالمدة',
+        monthFilter: 'عرض',
+        monthFilterDesc: 'فلترة المصروفات حسب الشهر',
+        periodFilter: 'عرض',
+        periodFilterDesc: 'فلترة المصروفات حسب فترة زمنية',
         printReport: 'طباعة تقرير شامل',
-        confirmDelete: 'هل أنت متأكد من الحذف؟'
+        confirmDelete: 'هل أنت متأكد من الحذف؟',
+        noExpenses: 'لا توجد مصروفات مطابقة ❌'
     },
     en: {
         title: 'Expenses',
@@ -33,10 +36,13 @@ const translations = {
         actions: 'Actions',
         printInvoice: 'Expense Invoice',
         searchPlaceholder: 'Search by name or category',
-        monthFilter: 'Filter by month',
-        periodFilter: 'Filter by period',
+        monthFilter: 'Show',
+        monthFilterDesc: 'Filter expenses by month',
+        periodFilter: 'Show',
+        periodFilterDesc: 'Filter expenses by period',
         printReport: 'Print Full Report',
-        confirmDelete: 'Are you sure you want to delete?'
+        confirmDelete: 'Are you sure you want to delete?',
+        noExpenses: 'No matching expenses ❌'
     },
     zh: {
         title: '支出',
@@ -49,10 +55,13 @@ const translations = {
         actions: '操作',
         printInvoice: '支出发票',
         searchPlaceholder: '按名称或分类搜索',
-        monthFilter: '按月份筛选',
-        periodFilter: '按期间筛选',
+        monthFilter: '显示',
+        monthFilterDesc: '按月份筛选支出',
+        periodFilter: '显示',
+        periodFilterDesc: '按期间筛选支出',
         printReport: '打印完整报告',
-        confirmDelete: '您确定要删除吗？'
+        confirmDelete: '您确定要删除吗？',
+        noExpenses: '未找到匹配的支出 ❌'
     }
 };
 
@@ -81,23 +90,18 @@ const Expenses = () => {
         }
     };
 
-      const handleDelete = async (id) => {
-    // التنبيه الأول
-    if (!window.confirm(t.confirmDelete)) return;
+    const handleDelete = async (id) => {
+        if (!window.confirm(t.confirmDelete)) return;
+        await new Promise(resolve => setTimeout(resolve, 400));
+        if (!window.confirm('هل أنت متأكد نهائيًا من حذف هذه المصروفية؟')) return;
 
-    // فرق زمني 500ms قبل التنبيه الثاني
-    await new Promise(resolve => setTimeout(resolve, 400));
-
-    // التنبيه الثاني
-    if (!window.confirm('هل أنت متأكد نهائيًا من حذف هذه المصروفية؟')) return;
-
-    try {
-        await api.delete(`/api/expenses/${id}`);
-        fetchExpenses();
-    } catch (err) {
-        console.error(err);
-    }
-};
+        try {
+            await api.delete(`/api/expenses/${id}`);
+            fetchExpenses();
+        } catch (err) {
+            console.error(err);
+        }
+    };
 
     const handlePrintInvoice = (expense) => {
         const printContent = `
@@ -167,6 +171,18 @@ ${t.date}: ${new Date(expense.date).toLocaleDateString('en-GB')}`;
         newWindow.print();
     };
 
+    const handleMonthFilter = () => {
+        if (!monthFilter) return;
+        setPeriodFilter({ start: '', end: '' });
+        fetchExpenses({ month: monthFilter.split('-')[1], year: monthFilter.split('-')[0] });
+    };
+
+    const handlePeriodFilter = () => {
+        if (!periodFilter.start || !periodFilter.end) return;
+        setMonthFilter('');
+        fetchExpenses({ startDate: periodFilter.start, endDate: periodFilter.end });
+    };
+
     const filteredExpenses = expenses.filter(e =>
         e.title.toLowerCase().includes(search.toLowerCase()) ||
         e.category.toLowerCase().includes(search.toLowerCase())
@@ -176,14 +192,6 @@ ${t.date}: ${new Date(expense.date).toLocaleDateString('en-GB')}`;
         <div className="expenses-page">
             <div className="top-bar">
                 <h1>{t.title}</h1>
-                {/* <div className="language-select">
-                    <label>Language: </label>
-                    <select value={language} onChange={e => setLanguage(e.target.value)}>
-                        <option value="ar">العربية</option>
-                        <option value="en">English</option>
-                        <option value="zh">中文</option>
-                    </select>
-                </div> */}
             </div>
 
             <button className="btn-primary" onClick={() => { setEditExpense(null); setShowForm(true); }}>
@@ -198,18 +206,41 @@ ${t.date}: ${new Date(expense.date).toLocaleDateString('en-GB')}`;
             )}
 
             <div className="filters">
-                <input type="month" value={monthFilter} onChange={e => setMonthFilter(e.target.value)} />
-                <button onClick={() => fetchExpenses({ month: monthFilter.split('-')[1], year: monthFilter.split('-')[0] })}>{t.monthFilter}</button>
+                <div>
+                    <input
+                        type="month"
+                        value={monthFilter}
+                        onChange={e => setMonthFilter(e.target.value)}
+                    />
+                    <button onClick={handleMonthFilter}>{t.monthFilter}</button>
+                    <p>{t.monthFilterDesc}</p>
+                </div>
 
-                <input type="date" value={periodFilter.start} onChange={e => setPeriodFilter({ ...periodFilter, start: e.target.value })} />
-                <input type="date" value={periodFilter.end} onChange={e => setPeriodFilter({ ...periodFilter, end: e.target.value })} />
-                <button onClick={() => fetchExpenses({ startDate: periodFilter.start, endDate: periodFilter.end })}>{t.periodFilter}</button>
+                <div>
+                    <input
+                        type="date"
+                        value={periodFilter.start}
+                        onChange={e => setPeriodFilter({ ...periodFilter, start: e.target.value })}
+                    />
+                    <input
+                        type="date"
+                        value={periodFilter.end}
+                        onChange={e => setPeriodFilter({ ...periodFilter, end: e.target.value })}
+                    />
+                    <button onClick={handlePeriodFilter}>{t.periodFilter}</button>
+                    <p>{t.periodFilterDesc}</p>
+                </div>
 
                 <button onClick={handlePrintReport}>{t.printReport}</button>
             </div>
 
             <div className="search-bar">
-                <input type="text" placeholder={t.searchPlaceholder} value={search} onChange={e => setSearch(e.target.value)} />
+                <input
+                    type="text"
+                    placeholder={t.searchPlaceholder}
+                    value={search}
+                    onChange={e => setSearch(e.target.value)}
+                />
             </div>
 
             <div className="table-wrapper">
@@ -225,21 +256,28 @@ ${t.date}: ${new Date(expense.date).toLocaleDateString('en-GB')}`;
                         </tr>
                     </thead>
                     <tbody>
-                        {filteredExpenses.map(e => (
-                            <tr key={e._id}>
-                                <td>{e.title}</td>
-                                <td>{e.category}</td>
-                                <td>{e.amount}</td>
-                                <td>{e.note || '-'}</td>
-                                <td>{new Date(e.date).toLocaleDateString('en-GB')}</td>
-                                <td className="actions-cell">
-                                    <button className="icon-btn print" onClick={() => handlePrintInvoice(e)}><FaPrint /></button>
-                                    <button className="icon-btn whatsapp" onClick={() => handleWhatsApp(e)}><FaWhatsapp /></button>
-                                    {/* <button className="icon-btn edit" onClick={() => { setEditExpense(e); setShowForm(true); }}><FaEdit /></button> */}
-                                    <button className="icon-btn delete" onClick={() => handleDelete(e._id)}><FaTrash /></button>
+                        {filteredExpenses.length > 0 ? (
+                            filteredExpenses.map(e => (
+                                <tr key={e._id}>
+                                    <td>{e.title}</td>
+                                    <td>{e.category}</td>
+                                    <td>{e.amount}</td>
+                                    <td>{e.note || '-'}</td>
+                                    <td>{new Date(e.date).toLocaleDateString('en-GB')}</td>
+                                    <td className="actions-cell">
+                                        <button className="icon-btn print" onClick={() => handlePrintInvoice(e)}><FaPrint /></button>
+                                        <button className="icon-btn whatsapp" onClick={() => handleWhatsApp(e)}><FaWhatsapp /></button>
+                                        <button className="icon-btn delete" onClick={() => handleDelete(e._id)}><FaTrash /></button>
+                                    </td>
+                                </tr>
+                            ))
+                        ) : (
+                            <tr>
+                                <td colSpan="6" style={{ textAlign: 'center', padding: '20px' }}>
+                                    {t.noExpenses}
                                 </td>
                             </tr>
-                        ))}
+                        )}
                     </tbody>
                 </table>
             </div>
