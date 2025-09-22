@@ -19,8 +19,12 @@ router.get('/', async (req, res) => {
             endDate = new Date(year, month, 0, 23, 59, 999);
         } else if (type === 'custom' && from && to) {
             startDate = new Date(from);
+            startDate.setHours(0, 0, 0, 0);
+
             endDate = new Date(to);
-        } else {
+            endDate.setHours(23, 59, 59, 999); // ✅ يغطي اليوم كامل
+        }
+        else {
             return res.status(400).json({ message: 'الرجاء تحديد نوع التقرير والفترة' });
         }
 
