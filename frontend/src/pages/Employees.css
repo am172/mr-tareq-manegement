@@ -13,21 +13,6 @@
   box-sizing: border-box;
 }
 
-.page h1 {
-    text-align: center;
-    font-size: 40px;
-    margin-bottom: 20px;
-    color: #333;
-    width: fit-content;
-    margin: 11px auto;
-    background: #2c3e50;
-    color: white;
-    padding: 17px 68px;
-    position: relative;
-    padding-top: 24px;
-    top: -68px;
-    border-radius: 32px;
-}
 
 .page h2 {
   margin-top: 30px;
@@ -119,9 +104,30 @@
    📋 جدول الموظفين
 ======================= */
 .table-wrapper {
-  overflow-x: auto; /* جعل الجدول يسكرول يمين/شمال */
-  margin-top: 15px;
+  width: 100%;
+  overflow-x: scroll;
+  -webkit-overflow-scrolling: touch; /* smooth scrolling on iOS */
+  border-radius: 12px;
 }
+
+.table-wrapper::-webkit-scrollbar-thumb {
+  background: #007bff; /* اللون الأزرق */
+  border-radius: 4px;
+}
+
+.table-wrapper::-webkit-scrollbar-track {
+  background: #f1f1f1; /* خلفية فاتحة */
+}
+
+
+/* للمتصفحات اللي بتدعم scrollbar-color */
+.table-wrapper {
+  scrollbar-color: #007bff #f1f1f1; /* thumb color | track color */
+  scrollbar-width: thin;
+    scrollbar-gutter: stable; /* ✅ يسيب مكان للسكرول حتى لو مش ظاهر */
+
+}
+
 
 table {
   width: 100%;
