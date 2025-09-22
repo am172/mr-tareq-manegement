@@ -81,7 +81,10 @@ function Sidebar({ isOpen, toggleSidebar }) {
     employees: { ar: 'الموظفين', en: 'Employees', zh: '员工' },
   };
 
- 
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
   const menuItems = [
     { path: '/inventory', label: labels.inventory[language], icon: <FaBox />, permission: 'inventory' },
     { path: '/purchases', label: labels.purchases[language], icon: <FaShoppingCart />, permission: 'purchases' },
