@@ -123,8 +123,75 @@ h1 {
 }
 .app {
   display: flex;
-  direction: rtl; /* اجعل كل النصوص عربية بشكل طبيعي */
+  direction: rtl;
+  flex-direction: column; /* علشان الهيدر يطلع فوق */
 }
+
+.header {
+display: flex
+;
+    align-items: center;
+    justify-content: flex-end;
+    background: #f5f5f5;
+    padding: 6px 20px;
+    /* border-bottom: 1px solid #ddd; */
+    gap: 15px;  
+}
+
+.header-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.user-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #2563eb;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  display: none;
+}
+
+.username {
+  font-weight: bold;
+  font-size: 33px;
+  border: 1px solid;
+    padding: 3px 20px;
+    border-radius: 12px;
+    background: #2563eb;
+    color: white;
+}
+
+.header-language select {
+ font-size: 22px;
+    padding: 6px 28px;
+    border-radius: 5px;
+    border: 1px solid #1668dc;
+    background: #fff;
+    color: #1668dc;
+}
+
+.logout-btn {
+  background: #2563eb;
+  color: #fff;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.logout-btn .icon {
+  font-size: 16px;
+}
+
 
 /* النافبار */
 .sidebar {
@@ -142,8 +209,11 @@ h1 {
 }
 
 .sidebar.open {
-  right: 0; /* إظهار السايدر عند الفتح */
-      box-shadow: 3px 24px 63px #1668dca8;
+  right: 0;
+    /* border-radius: 22px; */
+    box-shadow: 3px 24px 63px #1668dc4f;
+    height: 100vh;
+    position: fixed;
 }
 
 
@@ -230,11 +300,14 @@ h1 {
 
 
   .sidebar.open {
-    transform: translateX(0);
-            margin-top: -48px;
+           transform: translateX(0);
+        /* margin-top: -77px; */
+        right: 0;
+        position: fixed;
   }
   .sidebar .close-btn {
     display: block;
+    
   }
   .logout-btn{
     padding: 4px 4px;
@@ -289,8 +362,9 @@ h1 {
     transition: all 0.2s ease-in-out;
 }
 .language-selector select, .logout-btn{
-  border-radius: 20px;
-  width: 186px;
+      border-radius: 9px;
+    width: 169px;
+    margin: 15px auto;
 }
 
 .language-selector select:hover {
@@ -317,10 +391,10 @@ h1 {
             top: -40px;
     border-radius: 24px;
   }
-  .language-selector select, .logout-btn{
-    width: 148px;
- 
-  }
+      .language-selector select, .logout-btn {
+        width: 133px;
+        margin: 18px auto;
+    }
   .user-info-div{
     margin: -34px auto 10px;
   }
@@ -338,6 +412,27 @@ h1 {
         font-size: 16px;
         color: #ffffff;
         padding: 5px 9px;
+}
+.header{
+  display: grid;
+  gap: 5px;
+}
+.username {
+    font-weight: bold;
+    font-size: 16px;
+    border: 1px solid;
+    padding: 2px 15px;
+    border-radius: 12px;
+    background: #2563eb;
+    color: white;
+}
+.header-language select {
+    font-size: 15px;
+    padding: 0px 6px;
+    border-radius: 5px;
+    border: 1px solid #1668dc;
+    background: #fff;
+    color: #1668dc;
 }
 }
 .table-wrap {
