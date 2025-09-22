@@ -17,37 +17,25 @@ export function AuthProvider({ children }) {
     timeout: 900000,
   });
 
- // تعديل interceptor لرؤية ما يحدث
-api.interceptors.request.use((config) => {
-  const t = localStorage.getItem('token');
-  console.log('Request interceptor - Token from localStorage:', t);
-  
-  if (t) {
-    config.headers['Authorization'] = `Bearer ${t}`;
-    console.log('Authorization header set:', config.headers['Authorization']);
-  } else {
-    console.log('No token found in localStorage');
-  }
-  
-  return config;
-});
-
-// إضافة response interceptor للتصحيح
-api.interceptors.response.use(
-  (response) => {
-    console.log('Response received:', response.status);
-    return response;
-  },
-  (error) => {
-    console.error('Response error:', error.response?.status, error.response?.data);
-    if (error.response?.status === 401) {
-      console.log('Unauthorized - redirecting to login');
-      logout();
+  // ✅ Interceptor للـ request
+  api.interceptors.request.use((config) => {
+    const t = localStorage.getItem('token');
+    if (t) {
+      config.headers['Authorization'] = `Bearer ${t}`;
     }
-    return Promise.reject(error);
-  }
-);
- 
+    return config;
+  });
+
+  // ✅ Interceptor للـ response
+  api.interceptors.response.use(
+    (response) => response,
+    (error) => {
+      if (error.response?.status === 401) {
+        logout();
+      }
+      return Promise.reject(error);
+    }
+  );
 
   useEffect(() => {
     if (token) {
@@ -78,7 +66,8 @@ api.interceptors.response.use(
       localStorage.setItem('token', token);
       setToken(token);
       setUser(user);
-      return user;
+
+      return user; // ✅ رجعنا user عشان نستخدمه في Login.jsx مباشرة
     } catch (error) {
       console.error('Login error:', error);
       throw new Error(error.response?.data?.message || 'فشل تسجيل الدخول');
@@ -93,7 +82,7 @@ api.interceptors.response.use(
 
   const value = {
     user,
-    token,   // ✅ نرجّع التوكن هنا
+    token,
     login,
     logout,
     api,
