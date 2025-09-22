@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import { useLanguage } from '../context/LanguageContext';
 import './Login.css';
+// import logo from '../assets/xwazir.jpg';
 
 const translations = {
   ar: {
@@ -45,10 +46,9 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
-  const { login, user } = useAuth();
+  const { login } = useAuth();
   const navigate = useNavigate();
 
-  // ✅ استخدم اللغة من الـ context
   const { language, setLanguage } = useLanguage();
   const t = translations[language];
 
@@ -64,19 +64,21 @@ const Login = () => {
     setLoading(true);
 
     try {
-      await login(username, password);
+      // ✅ استعملنا اليوزر اللي بيرجع من login مباشرة
+      const loggedInUser = await login(username, password);
 
-      setTimeout(() => {
-        if (!user) return;
+      if (!loggedInUser) {
+        setError(t.loginFailed);
+        return;
+      }
 
-        if (user.role === 'admin') navigate('/employees');
-        else if (user.permissions?.inventory) navigate('/inventory');
-        else if (user.permissions?.purchases) navigate('/purchases');
-        else if (user.permissions?.sales) navigate('/sales');
-        else if (user.permissions?.expenses) navigate('/expenses');
-        else if (user.permissions?.reports) navigate('/reports');
-        else navigate('/login');
-      }, 200);
+      if (loggedInUser.role === 'admin') navigate('/employees');
+      else if (loggedInUser.permissions?.inventory) navigate('/inventory');
+      else if (loggedInUser.permissions?.purchases) navigate('/purchases');
+      else if (loggedInUser.permissions?.sales) navigate('/sales');
+      else if (loggedInUser.permissions?.expenses) navigate('/expenses');
+      else if (loggedInUser.permissions?.reports) navigate('/reports');
+      else navigate('/login');
 
     } catch (err) {
       setError(err.message || t.loginFailed);
@@ -140,6 +142,7 @@ const Login = () => {
           {loading ? t.loading : t.submit}
         </button>
       </form>
+      {/* <img src={logo} alt="" /> */}
     </div>
   );
 };
