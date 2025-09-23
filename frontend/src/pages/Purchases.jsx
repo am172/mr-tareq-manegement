@@ -203,6 +203,8 @@ const Purchases = () => {
     const [editingPurchase, setEditingPurchase] = useState(null);
     const { language } = useLanguage();
     const { api } = useAuth();
+    const [loading, setLoading] = useState(false); // ✅ حالة التحميل
+
 
     const t = translations[language];
 
@@ -249,12 +251,15 @@ const Purchases = () => {
 
     const fetchPurchases = async () => {
         try {
+            setLoading(true); // بدأ التحميل
             const q = buildQuery();
             const response = await api.get(`/api/purchases?${q}`);
             setPurchases(Array.isArray(response.data) ? response.data : []);
         } catch (error) {
             console.error('Error fetching purchases:', error);
             setPurchases([]);
+        } finally {
+            setLoading(false); // خلص التحميل
         }
     };
 
@@ -523,8 +528,8 @@ const Purchases = () => {
                 </div>
             )}
 
-            <div className="table-wrap">
-                {purchases.length === 0 ? (
+            <div className="table-wrap" style={{ minHeight: "200px", position: "relative" }}>
+                {purchases.length === 0 && !loading ? (
                     <div className="no-results">
                         <p>{t.noPurchasesDetail}</p>
                     </div>
@@ -532,7 +537,6 @@ const Purchases = () => {
                     <table className="purchases-table">
                         <thead>
                             <tr>
-                                {/* <th>{t.invoiceNumber}</th> */}
                                 <th>{t.serial}</th>
                                 <th>{t.product}</th>
                                 <th>{t.type}</th>
@@ -551,37 +555,65 @@ const Purchases = () => {
                                 <th>{t.actions}</th>
                             </tr>
                         </thead>
+
                         <tbody>
-                            {purchases.map((p, idx) => (
-                                <tr key={p.id || p._id}>
-                                    {/* <td>{p.invoiceNumber || (idx + 1)}</td> */}
-                                    <td>{p.serialNumber || '---'}</td>
-                                    <td>{p.productName || '---'}</td>
-                                    <td>{p.type === 'car' ? t.itemCar : t.itemPart}</td>
-                                    <td>{p.supplier || '---'}</td>
-                                    <td>{p.model || '---'}</td>
-                                    <td>{p.manufactureYear || '---'}</td>
-                                    <td>{p.color || '---'}</td>
-                                    <td>{p.chassisNumber || '---'}</td>
-                                    <td>{p.condition ? (p.condition === 'new' ? t.conditionNew : t.conditionUsed) : t.conditionEmpty}</td>
-                                    <td>{p.quantity || 0}</td>
-                                    <td>{formatMoney(p.price)}</td>
-                                    <td>{formatMoney(p.shippingCost || 0)}</td>
-                                    <td>{formatMoney(p.customsFee || 0)}</td>
-                                    <td>{formatMoney(calcDisplayTotal(p))}</td>
-                                    <td>{p.purchaseDate ? formatDate(p.purchaseDate) : '---'}</td>
-                                    <td className="actions-cell">
-                                        <button title={t.invoice} className="icon-btn" onClick={() => printInvoice(p)}><FaPrint /></button>
-                                        <button title="WhatsApp" className="icon-btn" onClick={() => sendWhatsApp(p)}><FaWhatsapp /></button>
-                                        <button title="Edit" className="icon-btn" onClick={() => handleEdit(p)}><FaEdit /></button>
-                                        <button title="Delete" className="icon-btn danger" onClick={() => handleDelete(p)}><FaTrash /></button>
+                            {loading ? (
+                                <tr>
+                                    <td colSpan="16" style={{ textAlign: "center", padding: "50px" }}>
+                                        <div
+                                            style={{
+                                                border: "10px solid #f3f3f3",
+                                                borderTop: "10px solid #007bff",
+                                                borderRadius: "50%",
+                                                width: "80px",
+                                                height: "80px",
+                                                margin: "0 auto",
+                                                animation: "spin 1.2s linear infinite",
+                                            }}
+                                        />
+                                        <style>
+                                            {`
+                                    @keyframes spin {
+                                        0% { transform: rotate(0deg); }
+                                        100% { transform: rotate(360deg); }
+                                    }
+                                `}
+                                        </style>
                                     </td>
                                 </tr>
-                            ))}
+                            ) : (
+                                purchases.map((p, idx) => (
+                                    <tr key={p.id || p._id}>
+                                        <td>{p.serialNumber || '---'}</td>
+                                        <td>{p.productName || '---'}</td>
+                                        <td>{p.type === 'car' ? t.itemCar : t.itemPart}</td>
+                                        <td>{p.supplier || '---'}</td>
+                                        <td>{p.model || '---'}</td>
+                                        <td>{p.manufactureYear || '---'}</td>
+                                        <td>{p.color || '---'}</td>
+                                        <td>{p.chassisNumber || '---'}</td>
+                                        <td>{p.condition ? (p.condition === 'new' ? t.conditionNew : t.conditionUsed) : t.conditionEmpty}</td>
+                                        <td>{p.quantity || 0}</td>
+                                        <td>{formatMoney(p.price)}</td>
+                                        <td>{formatMoney(p.shippingCost || 0)}</td>
+                                        <td>{formatMoney(p.customsFee || 0)}</td>
+                                        <td>{formatMoney(calcDisplayTotal(p))}</td>
+                                        <td>{p.purchaseDate ? formatDate(p.purchaseDate) : '---'}</td>
+                                        <td className="actions-cell">
+                                            <button title={t.invoice} className="icon-btn" onClick={() => printInvoice(p)}><FaPrint /></button>
+                                            <button title="WhatsApp" className="icon-btn" onClick={() => sendWhatsApp(p)}><FaWhatsapp /></button>
+                                            <button title="Edit" className="icon-btn" onClick={() => handleEdit(p)}><FaEdit /></button>
+                                            <button title="Delete" className="icon-btn danger" onClick={() => handleDelete(p)}><FaTrash /></button>
+                                        </td>
+                                    </tr>
+                                ))
+                            )}
                         </tbody>
                     </table>
                 )}
             </div>
+
+
         </div>
     );
 };
