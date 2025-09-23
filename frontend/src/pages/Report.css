@@ -39,7 +39,8 @@
    🎛️ الفلاتر
 ======================= */
 .filters {
-  display: flex;
+      display: flex;
+    justify-content: center;
   gap: 10px;
   align-items: center;
   margin-bottom: 20px;
@@ -49,11 +50,12 @@
 .filters select,
 .filters input,
 .filters button {
-  padding: 8px 12px;
-  font-size: 14px;
-  border: 1px solid #bbb;
-  border-radius: 6px;
-  outline: none;
+      padding: 8px 12px;
+    font-size: 14px;
+    border: 1px solid #bbb;
+    /* border-radius: 6px; */
+    outline: none;
+    margin: 0 3px;
 }
 
 .filters button {
@@ -231,4 +233,12 @@
     text-align: center;
             margin: 43px auto;
   }
+  button {
+    padding: 5px 8px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 9px;
+    margin-left: 3px;
+}
 }
