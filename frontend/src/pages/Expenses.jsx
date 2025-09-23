@@ -74,8 +74,10 @@ const Expenses = () => {
     const [monthFilter, setMonthFilter] = useState('');
     const [periodFilter, setPeriodFilter] = useState({ start: '', end: '' });
     const { language } = useLanguage();
+    const [loading, setLoading] = useState(false);   // ✅ حالة التحميل
 
     const t = translations[language];
+
 
     useEffect(() => {
         fetchExpenses();
@@ -83,10 +85,13 @@ const Expenses = () => {
 
     const fetchExpenses = async (params = {}) => {
         try {
+            setLoading(true); // ✅ ابدأ التحميل
             const res = await api.get('/api/expenses', { params });
             setExpenses(res.data);
         } catch (err) {
             console.error(err);
+        } finally {
+            setLoading(false); // ✅ وقف التحميل
         }
     };
 
@@ -243,44 +248,68 @@ ${t.date}: ${new Date(expense.date).toLocaleDateString('en-GB')}`;
                 />
             </div>
 
-            <div className="table-wrapper">
-                <table className="expenses-table">
-                    <thead>
-                        <tr>
-                            <th>{t.name}</th>
-                            <th>{t.category}</th>
-                            <th>{t.amount}</th>
-                            <th>{t.note}</th>
-                            <th>{t.date}</th>
-                            <th>{t.actions}</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {filteredExpenses.length > 0 ? (
-                            filteredExpenses.map(e => (
-                                <tr key={e._id}>
-                                    <td>{e.title}</td>
-                                    <td>{e.category}</td>
-                                    <td>{e.amount}</td>
-                                    <td>{e.note || '-'}</td>
-                                    <td>{new Date(e.date).toLocaleDateString('en-GB')}</td>
-                                    <td className="actions-cell">
-                                        <button className="icon-btn print" onClick={() => handlePrintInvoice(e)}><FaPrint /></button>
-                                        <button className="icon-btn whatsapp" onClick={() => handleWhatsApp(e)}><FaWhatsapp /></button>
-                                        <button className="icon-btn delete" onClick={() => handleDelete(e._id)}><FaTrash /></button>
+               {loading ? (
+                // ✅ سبينر التحميل
+                <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "60vh" }}>
+                    <div
+                        style={{
+                            border: "12px solid #f3f3f3",
+                            borderTop: "12px solid #007bff",
+                            borderRadius: "50%",
+                            width: "100px",
+                            height: "100px",
+                            animation: "spin 1.5s linear infinite",
+                        }}
+                    />
+                    <style>
+                        {`
+                        @keyframes spin {
+                          0% { transform: rotate(0deg); }
+                          100% { transform: rotate(360deg); }
+                        }
+                        `}
+                    </style>
+                </div>
+            ) : (
+                <div className="table-wrapper">
+                    <table className="expenses-table">
+                        <thead>
+                            <tr>
+                                <th>{t.name}</th>
+                                <th>{t.category}</th>
+                                <th>{t.amount}</th>
+                                <th>{t.note}</th>
+                                <th>{t.date}</th>
+                                <th>{t.actions}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {filteredExpenses.length > 0 ? (
+                                filteredExpenses.map(e => (
+                                    <tr key={e._id}>
+                                        <td>{e.title}</td>
+                                        <td>{e.category}</td>
+                                        <td>{e.amount}</td>
+                                        <td>{e.note || '-'}</td>
+                                        <td>{new Date(e.date).toLocaleDateString('en-GB')}</td>
+                                        <td className="actions-cell">
+                                            <button className="icon-btn print" onClick={() => handlePrintInvoice(e)}><FaPrint /></button>
+                                            <button className="icon-btn whatsapp" onClick={() => handleWhatsApp(e)}><FaWhatsapp /></button>
+                                            <button className="icon-btn delete" onClick={() => handleDelete(e._id)}><FaTrash /></button>
+                                        </td>
+                                    </tr>
+                                ))
+                            ) : (
+                                <tr>
+                                    <td colSpan="6" style={{ textAlign: 'center', padding: '20px' }}>
+                                        {t.noExpenses}
                                     </td>
                                 </tr>
-                            ))
-                        ) : (
-                            <tr>
-                                <td colSpan="6" style={{ textAlign: 'center', padding: '20px' }}>
-                                    {t.noExpenses}
-                                </td>
-                            </tr>
-                        )}
-                    </tbody>
-                </table>
-            </div>
+                            )}
+                        </tbody>
+                    </table>
+                </div>
+            )}
         </div>
     );
 };
