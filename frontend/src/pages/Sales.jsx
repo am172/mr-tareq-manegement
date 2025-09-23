@@ -149,6 +149,8 @@ const Sales = () => {
   const [periodFilter, setPeriodFilter] = useState({ start: '', end: '' });
   const { language } = useLanguage();
   const [filterDescription, setFilterDescription] = useState('');
+  const [loading, setLoading] = useState(false); // ✅ حالة التحميل
+
 
   const t = translations[language];
 
@@ -158,10 +160,13 @@ const Sales = () => {
 
   const fetchSales = async (params = {}) => {
     try {
+      setLoading(true); // بدأ التحميل
       const res = await api.get('/api/sales', { params });
       setSales(res.data);
     } catch (err) {
       console.error(err);
+    } finally {
+      setLoading(false); // خلص التحميل
     }
   };
 
@@ -479,7 +484,31 @@ ${t.total}: ${sale.total}`;
           </thead>
 
           <tbody>
-            {filteredSales.length > 0 ? (
+            {loading ? (
+              <tr>
+                <td colSpan="16" style={{ textAlign: "center", padding: "50px" }}>
+                  <div
+                    style={{
+                      border: "12px solid #f3f3f3",
+                      borderTop: "12px solid #007bff",
+                      borderRadius: "50%",
+                      width: "90px",
+                      height: "90px",
+                      margin: "0 auto",
+                      animation: "spin 1.2s linear infinite",
+                    }}
+                  />
+                  <style>
+                    {`
+                @keyframes spin {
+                  0% { transform: rotate(0deg); }
+                  100% { transform: rotate(360deg); }
+                }
+              `}
+                  </style>
+                </td>
+              </tr>
+            ) : filteredSales.length > 0 ? (
               filteredSales.map(s => (
                 <tr key={s._id}>
                   {/* <td>{s.invoiceNumber}</td> */}
@@ -498,7 +527,7 @@ ${t.total}: ${sale.total}`;
                   <td>{s.discount || 0}%</td>
                   <td>{s.total}</td>
                   <td>{new Date(s.date).toLocaleDateString('en-GB')}</td>
-                  <td className='actions-cell'>
+                  <td className="actions-cell">
                     <button onClick={() => handlePrintInvoice(s)}><FaPrint /></button>
                     <button onClick={() => handleWhatsApp(s)}><FaWhatsapp /></button>
                     <button onClick={() => { setEditSale(s); setShowForm(true); }}><FaEdit /></button>
@@ -508,13 +537,15 @@ ${t.total}: ${sale.total}`;
               ))
             ) : (
               <tr>
-                <td colSpan="17" style={{ textAlign: 'center', padding: '20px' }}>{t.noProducts}</td>
+                <td colSpan="16" style={{ textAlign: "center", padding: "20px" }}>
+                  {t.noProducts}
+                </td>
               </tr>
             )}
           </tbody>
-
         </table>
       </div>
+
     </div>
   );
 };
