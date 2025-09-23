@@ -38,11 +38,13 @@
 }
 
 .filters {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  align-items: center;
-  margin-bottom: 20px;
+     display: flex;
+    flex-wrap: wrap;
+    width: 80%;
+    margin: 0 auto;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 20px;
 }
 
 .filters select, .filters button {
