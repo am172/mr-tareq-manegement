@@ -114,6 +114,7 @@ const Inventory = () => {
   const [filterType, setFilterType] = useState('all');
   const [filterSupplier, setFilterSupplier] = useState('all');
   const [searchText, setSearchText] = useState('');
+  const [loading, setLoading] = useState(true); // ✅ حالة التحميل
   const { language } = useLanguage();
   const { api } = useAuth();
   const t = translations[language];
@@ -122,11 +123,14 @@ const Inventory = () => {
 
   const fetchInventory = async () => {
     try {
+      setLoading(true); // ✅ بدأ التحميل
       const res = await api.get('/api/products');
       setInventory(res.data);
     } catch (err) {
       console.error(err);
       toast.error(t.deleteError);
+    } finally {
+      setLoading(false); // ✅ انتهى التحميل
     }
   };
 
@@ -229,6 +233,7 @@ const Inventory = () => {
     <div className="inventory-page">
       <h1>{t.title}</h1>
 
+      {/* ✅ الكروت + السبينر */}
       <div className="inventory-cards">
         <div className="card" onClick={() => setFilterType('car')}>
           <h2>{t.cars}</h2>
@@ -240,57 +245,91 @@ const Inventory = () => {
         </div>
       </div>
 
-      <div className="filters">
-        <input
-          type="text"
-          placeholder={t.searchPlaceholder}
-          value={searchText}
-          onChange={(e) => setSearchText(e.target.value)}
-        />
-        <select value={filterType} onChange={(e) => setFilterType(e.target.value)}>
-          <option value="all">{t.all}</option>
-          <option value="car">{t.cars}</option>
-          <option value="part">{t.parts}</option>
-        </select>
+      {/* ✅ لو لسه بيحمل */}
+      {loading && (
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            margin: "30px 0"
+          }}
+        >
+          <div
+            style={{
+              border: "12px solid #f3f3f3",   // خلفية خفيفة
+              borderTop: "12px solid #007bff", // أزرق
+              borderRadius: "50%",
+              width: "80px",
+              height: "80px",
+              animation: "spin 1.5s linear infinite"
+            }}
+          />
+          <style>
+            {`
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+          `}
+          </style>
+        </div>
+      )}
 
-        <select value={filterSupplier} onChange={(e) => setFilterSupplier(e.target.value)}>
-          <option value="all">{t.allSuppliers}</option>
-          {suppliers.map(s => <option key={s} value={s}>{s}</option>)}
-        </select>
+      {/* ✅ الباقي */}
+      {!loading && (
+        <>
+          <div className="filters">
+            <input
+              type="text"
+              placeholder={t.searchPlaceholder}
+              value={searchText}
+              onChange={(e) => setSearchText(e.target.value)}
+            />
+            <select value={filterType} onChange={(e) => setFilterType(e.target.value)}>
+              <option value="all">{t.all}</option>
+              <option value="car">{t.cars}</option>
+              <option value="part">{t.parts}</option>
+            </select>
 
-        <button className="btn-primary" onClick={printReport}>{t.printInventory}</button>
-      </div>
-      {/* نص يوضح الفلاتر */}
-      <div className="filters-info">
-        {filteredInventory.length > 0 ? (
-          <p>
-            {t.resultsFor(filterType, filterSupplier)}
-          </p>
-        ) : (
-          <p style={{ color: 'red' }}>
-            {t.noResults(filterType, filterSupplier)}
-          </p>
-        )}
-      </div>
+            <select value={filterSupplier} onChange={(e) => setFilterSupplier(e.target.value)}>
+              <option value="all">{t.allSuppliers}</option>
+              {suppliers.map(s => <option key={s} value={s}>{s}</option>)}
+            </select>
 
-
-      <div className="inventory-grid">
-        {filteredInventory.map(item => (
-          <div key={item._id} className="inventory-item">
-            <h3 className='ism'>{item.productName || item.name || '-'}</h3>
-            <p className='p-inv'>{t.type}: {item.type === 'car' ? t.cars : t.parts}</p>
-            <p className='p-inv'>{t.supplier}: {item.supplier || '-'}</p>
-            <p className='p-inv'>{t.quantity}: {item.quantity}</p>
-            <div className="item-actions">
-              <button title={t.invoice} onClick={() => printItem(item)}><FaPrint /></button>
-              <button title="WhatsApp" onClick={() => sendWhatsApp(item)}><FaWhatsapp /></button>
-              <button title={t.delete} onClick={() => deleteItem(item._id)}><FaTrash style={{ color: 'red' }} /></button>
-            </div>
+            <button className="btn-primary" onClick={printReport}>{t.printInventory}</button>
           </div>
-        ))}
-      </div>
+
+          <div className="filters-info">
+            {filteredInventory.length > 0 ? (
+              <p>{t.resultsFor(filterType, filterSupplier)}</p>
+            ) : (
+              <p style={{ color: 'red' }}>
+                {t.noResults(filterType, filterSupplier)}
+              </p>
+            )}
+          </div>
+
+          <div className="inventory-grid">
+            {filteredInventory.map(item => (
+              <div key={item._id} className="inventory-item">
+                <h3 className='ism'>{item.productName || item.name || '-'}</h3>
+                <p className='p-inv'>{t.type}: {item.type === 'car' ? t.cars : t.parts}</p>
+                <p className='p-inv'>{t.supplier}: {item.supplier || '-'}</p>
+                <p className='p-inv'>{t.quantity}: {item.quantity}</p>
+                <div className="item-actions">
+                  <button title={t.invoice} onClick={() => printItem(item)}><FaPrint /></button>
+                  <button title="WhatsApp" onClick={() => sendWhatsApp(item)}><FaWhatsapp /></button>
+                  <button title={t.delete} onClick={() => deleteItem(item._id)}><FaTrash style={{ color: 'red' }} /></button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
     </div>
   );
+
 };
 
 // ======= دوال الطباعة والواتساب =======
