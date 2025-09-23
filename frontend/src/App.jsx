@@ -1,23 +1,59 @@
 // App.js
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, Link, useLocation, useNavigate } from 'react-router-dom';
 import { FaBox, FaShoppingCart, FaDollarSign, FaFileInvoiceDollar, FaChartBar, FaUsers, FaSignOutAlt } from 'react-icons/fa';
-
-import Login from './pages/Login';
-import Inventory from './pages/Inventory';
-import Purchases from './pages/Purchases';
-import Sales from './pages/Sales';
-import Expenses from './pages/Expenses';
-import Reports from './pages/Reports';
-import SupplierDetails from './pages/Suppliers';
-import Employees from './pages/Employees';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { LanguageProvider, useLanguage } from './context/LanguageContext';
 import { testServerConnection } from './utils/testConnection';
 import { ToastContainer } from 'react-toastify';
 import './App.css';
 
+// ✅ Lazy loading للصفحات
+const Login = lazy(() => import('./pages/Login'));
+const Inventory = lazy(() => import('./pages/Inventory'));
+const Purchases = lazy(() => import('./pages/Purchases'));
+const Sales = lazy(() => import('./pages/Sales'));
+const Expenses = lazy(() => import('./pages/Expenses'));
+const Reports = lazy(() => import('./pages/Reports'));
+const SupplierDetails = lazy(() => import('./pages/Suppliers'));
+const Employees = lazy(() => import('./pages/Employees'));
+
 testServerConnection();
+
+/** ✅ سبينر عام */
+function GlobalSpinner() {
+  return (
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        height: "100vh",
+        flexDirection: "column"
+      }}
+    >
+      <div
+        style={{
+          border: "12px solid #f3f3f3",
+          borderTop: "12px solid #007bff",
+          borderRadius: "50%",
+          width: "100px",
+          height: "100px",
+          animation: "spin 1.5s linear infinite"
+        }}
+      />
+      <style>
+        {`
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+        `}
+      </style>
+      <p style={{ marginTop: "15px", fontSize: "18px", color: "#007bff" }}>جار التحميل...</p>
+    </div>
+  );
+}
 
 /** ✅ حماية الصفحات */
 function ProtectedRoute({ children, requiredPermission, adminOnly = false }) {
@@ -34,11 +70,8 @@ function ProtectedRoute({ children, requiredPermission, adminOnly = false }) {
 
 /** ✅ الهيدر */
 function Header() {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const { language, setLanguage } = useLanguage();
-  const navigate = useNavigate();
-
-
 
   return (
     <div className="header">
@@ -51,7 +84,6 @@ function Header() {
         </div>
       )}
 
-      {/* ✅ تغيير اللغة */}
       <div className="header-language">
         <select value={language} onChange={e => setLanguage(e.target.value)}>
           <option value="ar">العربية</option>
@@ -59,19 +91,16 @@ function Header() {
           <option value="zh">中文</option>
         </select>
       </div>
-
-
     </div>
-
   );
 }
 
 /** ✅ السايدر */
 function Sidebar({ isOpen, toggleSidebar }) {
-  const { user, logout } = useAuth();   // ✅ زودنا logout
+  const { user, logout } = useAuth();
   const { language } = useLanguage();
   const location = useLocation();
-  const navigate = useNavigate();       // ✅ عرفنا navigate هنا
+  const navigate = useNavigate();
 
   const labels = {
     inventory: { ar: 'المخزون', en: 'Inventory', zh: '库存' },
@@ -86,6 +115,7 @@ function Sidebar({ isOpen, toggleSidebar }) {
     logout();
     navigate('/login');
   };
+
   const menuItems = [
     { path: '/inventory', label: labels.inventory[language], icon: <FaBox />, permission: 'inventory' },
     { path: '/purchases', label: labels.purchases[language], icon: <FaShoppingCart />, permission: 'purchases' },
@@ -99,7 +129,7 @@ function Sidebar({ isOpen, toggleSidebar }) {
     <div className={`sidebar ${isOpen ? 'open' : ''}`}>
       <button className="close-btn" onClick={toggleSidebar}>×</button>
 
-      <nav style={{ marginTop: "68px;" }}>
+      <nav style={{ marginTop: "68px" }}>
         <ul>
           {menuItems.map((item) => {
             if (item.adminOnly && user?.role !== 'admin') return null;
@@ -115,9 +145,8 @@ function Sidebar({ isOpen, toggleSidebar }) {
             );
           })}
         </ul>
-
       </nav>
-      {/* 💰 زر تغيير العملة */}
+
       <div className="currency-section" style={{ marginTop: '2px', textAlign: 'center', borderBottom: '.3px solid' }}>
         <p style={{ fontSize: '16px', marginBottom: '8px', padding: '0 10px' }}>
           {language === 'ar' ? 'العملة الرسمية للموقع هي الدرهم الإماراتي، لتغيير العملة اضغط هنا' :
@@ -130,13 +159,12 @@ function Sidebar({ isOpen, toggleSidebar }) {
           target="_blank"
           rel="noopener noreferrer"
         >
-          <button style={{ padding: '8px 12px', borderRadius: '6px', background: '#2563eb', color: '#fff', border: 'none', cursor: 'pointer', margin: '0 auto', }}>
+          <button style={{ padding: '8px 12px', borderRadius: '6px', background: '#2563eb', color: '#fff', border: 'none', cursor: 'pointer', margin: '0 auto' }}>
             {language === 'ar' ? 'تغيير العملة' : language === 'zh' ? '更改货币' : 'Change Currency'}
           </button>
         </a>
       </div>
 
-      {/* ✅ تسجيل الخروج */}
       <button onClick={handleLogout} className="logout-btn">
         {language === 'ar' ? 'تسجيل خروج' : language === 'zh' ? '退出登录' : 'Logout'}
         <FaSignOutAlt className="icon" />
@@ -173,19 +201,21 @@ function AppContent() {
       )}
 
       <div className="content">
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/suppliers" element={<SupplierDetails />} />
+        <Suspense fallback={<GlobalSpinner />}>
+          <Routes>
+            <Route path="/login" element={<Login />} />
+            <Route path="/suppliers" element={<SupplierDetails />} />
 
-          <Route path="/inventory" element={<ProtectedRoute requiredPermission="inventory"><Inventory /></ProtectedRoute>} />
-          <Route path="/purchases" element={<ProtectedRoute requiredPermission="purchases"><Purchases /></ProtectedRoute>} />
-          <Route path="/sales" element={<ProtectedRoute requiredPermission="sales"><Sales /></ProtectedRoute>} />
-          <Route path="/expenses" element={<ProtectedRoute requiredPermission="expenses"><Expenses /></ProtectedRoute>} />
-          <Route path="/reports" element={<ProtectedRoute requiredPermission="reports"><Reports /></ProtectedRoute>} />
-          <Route path="/employees" element={<ProtectedRoute adminOnly={true}><Employees /></ProtectedRoute>} />
+            <Route path="/inventory" element={<ProtectedRoute requiredPermission="inventory"><Inventory /></ProtectedRoute>} />
+            <Route path="/purchases" element={<ProtectedRoute requiredPermission="purchases"><Purchases /></ProtectedRoute>} />
+            <Route path="/sales" element={<ProtectedRoute requiredPermission="sales"><Sales /></ProtectedRoute>} />
+            <Route path="/expenses" element={<ProtectedRoute requiredPermission="expenses"><Expenses /></ProtectedRoute>} />
+            <Route path="/reports" element={<ProtectedRoute requiredPermission="reports"><Reports /></ProtectedRoute>} />
+            <Route path="/employees" element={<ProtectedRoute adminOnly={true}><Employees /></ProtectedRoute>} />
 
-          <Route path="/" element={<Navigate to="/inventory" />} />
-        </Routes>
+            <Route path="/" element={<Navigate to="/inventory" />} />
+          </Routes>
+        </Suspense>
       </div>
     </div>
   );
@@ -205,4 +235,3 @@ function App() {
 }
 
 export default App;
-
