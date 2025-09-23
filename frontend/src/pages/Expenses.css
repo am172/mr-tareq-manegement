@@ -61,6 +61,13 @@
   color: var(--text-color);
 }
 
+.btn-primary{
+  background-color: #2a4bdf;
+  color: #ffffff;
+}
+.search-bar{
+  text-align: center;
+}
 .expense-form button {
   padding: 10px 16px;
   background: var(--primary);
