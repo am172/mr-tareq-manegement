@@ -137,14 +137,14 @@ table {
 }
 
 th, td {
-  border: 1px solid #ccc;
-  padding: 10px;
-  font-size: 14px;
-  text-align: center;
+     border: 1px solid #ccc;
+    padding: 6px;
+    font-size: 17px;
+    text-align: center;
 }
 
 th {
-  background: #f1f1f1;
+  background: #2b47e6;
   font-weight: bold;
 }
 
