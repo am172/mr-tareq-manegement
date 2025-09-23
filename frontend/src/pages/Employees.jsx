@@ -165,18 +165,23 @@ const Employees = () => {
     const [showForm, setShowForm] = useState(false);
     const [editingEmployee, setEditingEmployee] = useState(null);
     const { language } = useLanguage();
+    const [loading, setLoading] = useState(true);
+
 
     const t = translations[language];
 
-    // جلب كل الموظفين
     const fetchEmployees = async () => {
         try {
+            setLoading(true);   // 👈 بدء التحميل
             const res = await api.get('/api/employees');
             setEmployees(res.data);
         } catch (err) {
             console.error(err);
+        } finally {
+            setLoading(false);  // 👈 إنهاء التحميل
         }
     };
+
 
     useEffect(() => {
         fetchEmployees();
@@ -243,7 +248,7 @@ const Employees = () => {
         setShowForm(true);
     };
 
-   const handleDelete = async (emp) => {
+    const handleDelete = async (emp) => {
         // التنبيه الأول
         if (!window.confirm(`${t.confirmDelete} "${emp.realName}"؟`)) return;
 
@@ -399,30 +404,57 @@ const Employees = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {employees.map(emp => (
-                                    <tr key={emp._id}>
-                                        <td>{emp.realName}</td>
-                                        <td>{emp.username || '-'}</td>
-                                        <td className="password-cell">{emp.plainPassword || '-'}</td>
-                                        <td>{emp.address || '-'}</td>
-                                        <td>{emp.role === 'employee' ? t.employeeRole : t.adminRole}</td>
-                                        <td>{emp.salary || '-'}</td>
-                                        <td>{emp.phone || '-'}</td>
-                                        <td>{emp.hireDate ? new Date(emp.hireDate).toLocaleDateString() : '-'}</td>
-                                        <td>{emp.notes || '-'}</td>
-                                        <td>
-                                            {emp.permissions && Object.entries(emp.permissions)
-                                                .filter(([_, val]) => val)
-                                                .map(([key]) => t[key] || key)
-                                                .join(', ') || '-'}
-                                        </td>
-                                        <td className="actions-cell">
-                                            <button onClick={() => handleEdit(emp)} title={t.edit}><FaEdit /></button>
-                                            <button onClick={() => handleDelete(emp)} title={t.delete}><FaTrash /></button>
+                                {loading ? (
+                                    <tr>
+                                        <td colSpan="11" style={{ textAlign: "center", padding: "40px" }}>
+                                            <div
+                                                style={{
+                                                    border: "8px solid #f3f3f3",
+                                                    borderTop: "8px solid #007bff",
+                                                    borderRadius: "50%",
+                                                    width: "60px",
+                                                    height: "60px",
+                                                    margin: "auto",
+                                                    animation: "spin 1.5s linear infinite"
+                                                }}
+                                            />
+                                            <style>
+                                                {`
+                    @keyframes spin {
+                        0% { transform: rotate(0deg); }
+                        100% { transform: rotate(360deg); }
+                    }
+                    `}
+                                            </style>
                                         </td>
                                     </tr>
-                                ))}
+                                ) : (
+                                    employees.map(emp => (
+                                        <tr key={emp._id}>
+                                            <td>{emp.realName}</td>
+                                            <td>{emp.username || '-'}</td>
+                                            <td className="password-cell">{emp.plainPassword || '-'}</td>
+                                            <td>{emp.address || '-'}</td>
+                                            <td>{emp.role === 'employee' ? t.employeeRole : t.adminRole}</td>
+                                            <td>{emp.salary || '-'}</td>
+                                            <td>{emp.phone || '-'}</td>
+                                            <td>{emp.hireDate ? new Date(emp.hireDate).toLocaleDateString() : '-'}</td>
+                                            <td>{emp.notes || '-'}</td>
+                                            <td>
+                                                {emp.permissions && Object.entries(emp.permissions)
+                                                    .filter(([_, val]) => val)
+                                                    .map(([key]) => t[key] || key)
+                                                    .join(', ') || '-'}
+                                            </td>
+                                            <td className="actions-cell">
+                                                <button onClick={() => handleEdit(emp)} title={t.edit}><FaEdit /></button>
+                                                <button onClick={() => handleDelete(emp)} title={t.delete}><FaTrash /></button>
+                                            </td>
+                                        </tr>
+                                    ))
+                                )}
                             </tbody>
+
                         </table>
                     </div>
                 </>
